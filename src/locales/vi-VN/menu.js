@@ -35,9 +35,7 @@ export default {
   'menu.account.settings': 'Account Settings',
   'menu.account.trigger': 'Trigger Error',
   'menu.account.logout': 'Logout',
-
   'menu.member': 'Member',
-  'menu.member.center': 'Center',
 
   'menu.member.cardlist': 'CardList',
   'menu.member.basiclist': 'BasicList',

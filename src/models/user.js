@@ -1,4 +1,4 @@
-import { query as queryUsers, queryCurrent } from '@/services/user';
+import { queryCurrent, fetch, removeUser, updateUser, addUser } from '@/services/user';
 
 export default {
   namespace: 'user',
@@ -10,9 +10,9 @@ export default {
 
   effects: {
     *fetch(_, { call, put }) {
-      const response = yield call(queryUsers);
+      const response = yield call(fetch);
       yield put({
-        type: 'save',
+        type: 'fetchUser',
         payload: response,
       });
     },
@@ -23,13 +23,26 @@ export default {
         payload: response,
       });
     },
+    *submit({ payload }, { call, put }) {
+      let callback;
+      if (payload.id) {
+        callback = Object.keys(payload).length === 1 ? removeUser : updateUser;
+      } else {
+        callback = addUser;
+      }
+      const response = yield call(callback, payload); // post
+      yield put({
+        type: 'queryList',
+        payload: response,
+      });
+    },
   },
 
   reducers: {
-    save(state, action) {
+    fetchUser(state, action) {
       return {
         ...state,
-        list: action.payload,
+        list: action.payload.data,
       };
     },
     saveCurrentUser(state, action) {

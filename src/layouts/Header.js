@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { formatMessage } from 'umi/locale';
 import { Layout, message } from 'antd';
 import Animate from 'rc-animate';
 import { connect } from 'dva';
@@ -9,7 +8,6 @@ import TopNavHeader from '@/components/TopNavHeader';
 import styles from './Header.less';
 import Authorized from '@/utils/Authorized';
 
-// eslint-disable-next-line no-unused-vars
 const { Header } = Layout;
 
 class HeaderView extends PureComponent {
@@ -44,11 +42,7 @@ class HeaderView extends PureComponent {
   };
 
   handleNoticeClear = type => {
-    message.success(
-      `${formatMessage({ id: 'component.noticeIcon.cleared' })} ${formatMessage({
-        id: `component.globalHeader.${type}`,
-      })}`
-    );
+    message.success(`清空了${type}`);
     const { dispatch } = this.props;
     dispatch({
       type: 'global/clearNotices',
@@ -68,6 +62,10 @@ class HeaderView extends PureComponent {
     }
     if (key === 'userinfo') {
       router.push('/account/settings/base');
+      return;
+    }
+    if (key === 'register') {
+      router.push('/user/register');
       return;
     }
     if (key === 'logout') {
@@ -94,12 +92,13 @@ class HeaderView extends PureComponent {
     }
     const scrollTop = document.body.scrollTop + document.documentElement.scrollTop;
     if (!this.ticking) {
-      this.ticking = true;
       requestAnimationFrame(() => {
         if (this.oldScrollTop > scrollTop) {
           this.setState({
             visible: true,
           });
+          this.scrollTop = scrollTop;
+          return;
         }
         if (scrollTop > 300 && visible) {
           this.setState({
@@ -115,6 +114,7 @@ class HeaderView extends PureComponent {
         this.ticking = false;
       });
     }
+    this.ticking = false;
   };
 
   render() {
@@ -123,9 +123,8 @@ class HeaderView extends PureComponent {
     const { visible } = this.state;
     const isTop = layout === 'topmenu';
     const width = this.getHeadWidth();
-    // eslint-disable-next-line no-unused-vars
     const HeaderDom = visible ? (
-      <div style={{ padding: 0, width }} className={fixedHeader ? styles.fixedHeader : ''}>
+      <Header style={{ padding: 0, width }} className={fixedHeader ? styles.fixedHeader : ''}>
         {isTop && !isMobile ? (
           <TopNavHeader
             theme={navTheme}
@@ -146,17 +145,11 @@ class HeaderView extends PureComponent {
             {...this.props}
           />
         )}
-      </div>
+      </Header>
     ) : null;
     return (
       <Animate component="" transitionName="fade">
-        <GlobalHeader
-          onCollapse={handleMenuCollapse}
-          onNoticeClear={this.handleNoticeClear}
-          onMenuClick={this.handleMenuClick}
-          onNoticeVisibleChange={this.handleNoticeVisibleChange}
-          {...this.props}
-        />
+        {HeaderDom}
       </Animate>
     );
   }

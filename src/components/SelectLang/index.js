@@ -13,17 +13,19 @@ export default class SelectLang extends PureComponent {
   render() {
     const { className } = this.props;
     const selectedLang = getLocale();
-    const locales = ['zh-CN', 'zh-TW', 'en-US', 'pt-BR'];
+    const locales = ['vi-VN', 'en-US', 'zh-CN', 'zh-TW', 'pt-BR'];
     const languageLabels = {
+      'vi-VN': 'Tiếng Việt',
+      'en-US': 'English',
       'zh-CN': '简体中文',
       'zh-TW': '繁体中文',
-      'en-US': 'English',
       'pt-BR': 'Português',
     };
     const languageIcons = {
+      'vi-VN': '🇻🇳',
+      'en-US': '🇬🇧',
       'zh-CN': '🇨🇳',
       'zh-TW': '🇭🇰',
-      'en-US': '🇬🇧',
       'pt-BR': '🇧🇷',
     };
     const langMenu = (
