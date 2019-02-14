@@ -171,11 +171,11 @@ class BasicList extends PureComponent {
     const ListContent = ({ data: { owner, createdAt, percent, status } }) => (
       <div className={styles.listContent}>
         <div className={styles.listContentItem}>
-          <span>Owner</span>
+          <span>Tình trạng</span>
           <p>{owner}</p>
         </div>
         <div className={styles.listContentItem}>
-          <span>开始时间</span>
+          <span>Thời gian</span>
           <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p>
         </div>
         <div className={styles.listContentItem}>
@@ -188,13 +188,13 @@ class BasicList extends PureComponent {
       <Dropdown
         overlay={
           <Menu onClick={({ key }) => editAndDelete(key, props.current)}>
-            <Menu.Item key="edit">编辑</Menu.Item>
-            <Menu.Item key="delete">删除</Menu.Item>
+            <Menu.Item key="active">Active</Menu.Item>
+            <Menu.Item key="delete">Xoá</Menu.Item>
           </Menu>
         }
       >
         <a>
-          更多 <Icon type="down" />
+          Thêm <Icon type="down" />
         </a>
       </Dropdown>
     );
@@ -241,7 +241,7 @@ class BasicList extends PureComponent {
               rules: [{ required: true, message: '请选择任务负责人' }],
               initialValue: current.owner,
             })(
-              <Select placeholder="请选择">
+              <Select placeholder="Lựa chọn">
                 <SelectOption value="付晓晓">付晓晓</SelectOption>
                 <SelectOption value="周毛毛">周毛毛</SelectOption>
               </Select>
@@ -272,7 +272,6 @@ class BasicList extends PureComponent {
               </Col>
             </Row>
           </Card>
-
           <Card
             className={styles.listCard}
             bordered={false}
@@ -316,8 +315,8 @@ class BasicList extends PureComponent {
                 >
                   <List.Item.Meta
                     avatar={<Avatar src={item.logo} shape="square" size="large" />}
-                    title={<a href={item.href}>{item.title}</a>}
-                    description={item.subDescription}
+                    title={<a href={item.href}>{item.fullname}</a>}
+                    description=<div>{item.address}</div>
                   />
                   <ListContent data={item} />
                 </List.Item>
