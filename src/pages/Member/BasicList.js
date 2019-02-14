@@ -164,11 +164,18 @@ class BasicList extends PureComponent {
     const paginationProps = {
       showSizeChanger: true,
       showQuickJumper: true,
-      pageSize: 5,
-      total: 50,
+      total: list.length,
+      current: Number(this.props.location.query.page) || 1, // eslint-disable-line
+      onChange: e => {
+        const { history } = this.props;
+        history.push(history.location.pathname.concat('?', 'page=', e));
+      },
+      onShowSizeChange: (e, size) => {
+        console.log(e, size);
+      },
     };
 
-    const ListContent = ({ data: { owner, createdAt, percent, status } }) => (
+    const ListContent = ({ data: { owner, createdAt, percent } }) => (
       <div className={styles.listContent}>
         <div className={styles.listContentItem}>
           <span>Tình trạng</span>
@@ -179,7 +186,7 @@ class BasicList extends PureComponent {
           <p>{moment(createdAt).format('YYYY-MM-DD HH:mm')}</p>
         </div>
         <div className={styles.listContentItem}>
-          <Progress percent={percent} status={status} strokeWidth={6} style={{ width: 180 }} />
+          <Progress percent={percent} strokeWidth={6} style={{ width: 180 }} />
         </div>
       </div>
     );

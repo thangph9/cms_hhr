@@ -8,18 +8,6 @@ import styles from './Articles.less';
   user,
 }))
 class Center extends PureComponent {
-  componentDidMount() {
-    const { dispatch, match } = this.props;
-    try {
-      dispatch({
-        type: 'user/fetchBy',
-        payload: match.params.user_id,
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   render() {
     const {
       user: { list },
