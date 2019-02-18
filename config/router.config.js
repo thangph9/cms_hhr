@@ -49,6 +49,28 @@ export default [
             name: 'searchtable',
             component: './Member/TableList',
           },
+          {
+            path: '/member/center/:user_id',
+            component: './Member/Center/Center',
+            routes: [
+              {
+                path: '/member/center/:user_id',
+                redirect: '/member/center/:user_id/articles',
+              },
+              {
+                path: '/member/center/:user_id/articles',
+                component: './Member/Center/Articles',
+              },
+              {
+                path: '/member/center/:user_id/applications',
+                component: './Member/Center/Applications',
+              },
+              {
+                path: '/member/center/:user_id/projects',
+                component: './Member/Center/Projects',
+              },
+            ],
+          },
         ],
       },
       {
