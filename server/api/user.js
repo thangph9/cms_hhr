@@ -25,7 +25,7 @@ function fetch(req, res) {
             items.map((e, i) => {
               const item = {
                 fullname: e.fullname,
-                age: '28',
+                age: new Date().getYear() - e.createat.getYear(),
                 address: e.address,
                 createat: e.createat,
                 percent: 10,
