@@ -1,4 +1,4 @@
-import { queryCurrent, fetch, removeUser, updateUser, addUser } from '@/services/user';
+import { queryCurrent, fetch, removeUser, updateUser, addUser, queryUserBy } from '@/services/user';
 
 export default {
   namespace: 'user',
@@ -6,6 +6,7 @@ export default {
   state: {
     list: [],
     currentUser: {},
+    member: {},
   },
 
   effects: {
@@ -20,6 +21,13 @@ export default {
       const response = yield call(queryCurrent);
       yield put({
         type: 'saveCurrentUser',
+        payload: response,
+      });
+    },
+    *fetchBy(payload, { call, put }) {
+      const response = yield call(queryUserBy, payload);
+      yield put({
+        type: 'fetchByReducer',
         payload: response,
       });
     },
@@ -49,6 +57,12 @@ export default {
       return {
         ...state,
         currentUser: action.payload || {},
+      };
+    },
+    fetchByReducer(state, action) {
+      return {
+        ...state,
+        member: action.payload.data,
       };
     },
     changeNotifyCount(state, action) {
