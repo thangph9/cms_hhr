@@ -13,7 +13,7 @@ const router = express.Router();
 const Uuid = driver.types.Uuid; // eslint-disable-line
 
 function fetch(req, res) {
-  let users = {};
+  let members = [];
   async.series(
     [
       function initialParam(callback) {
@@ -21,14 +21,35 @@ function fetch(req, res) {
       },
       function getDataUser(callback) {
         models.instance.users.find({}, (err, items) => {
-          users = items;
+          if (items && items.length > 0) {
+            members = items;
+          }
           callback(err, null);
         });
+      },
+      function detectionUser(callback) {
+        /* esline-disable */
+        members.map((e, i) => {
+          const item = {
+            fullname: e.fullname,
+            age: '28',
+            address: e.address,
+            createat: e.createat,
+            percent: 10,
+            status: ['active', 'exception', 'normal'],
+            owner: 'Active',
+            href: '/member/center/'.concat(e.user_id),
+          };
+          members[i] = item;
+          return true;
+        });
+        /* esline-disable */
+        callback(null, null);
       },
     ],
     err => {
       if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data: users });
+      res.send({ status: 'ok', data: members });
     }
   );
 }
