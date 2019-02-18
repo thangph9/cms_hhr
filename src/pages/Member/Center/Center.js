@@ -21,14 +21,16 @@ class Center extends PureComponent {
   };
 
   componentDidMount() {
-    const { dispatch } = this.props;
+    const { dispatch, match } = this.props;
+    console.log(match);
     dispatch({
-      type: 'user/fetchCurrent',
+      type: 'user/fetchBy',
+      payload: match.params.user_id,
     });
     dispatch({
       type: 'list/fetch',
       payload: {
-        count: 8,
+        count: 3,
       },
     });
     dispatch({

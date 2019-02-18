@@ -48,7 +48,7 @@ function fetch(req, res) {
   );
 }
 function fetchBy(req, res) {
-  let users = {};
+  const members = [];
   const PARAM_IS_VALID = {};
   const params = req.params; // eslint-disable-line
   async.series(
@@ -63,14 +63,29 @@ function fetchBy(req, res) {
       },
       function getDataUser(callback) {
         models.instance.users.find({ user_id: PARAM_IS_VALID.user_id }, (err, items) => {
-          users = items;
+          if (items && items.length > 0) {
+            items.map((e, i) => {
+              const item = {
+                fullname: e.fullname,
+                age: new Date().getYear() - e.createat.getYear(),
+                address: e.address,
+                createat: e.createat,
+                percent: 10,
+                status: ['active', 'exception', 'normal'],
+                owner: 'Active',
+                href: '/member/center/'.concat(e.user_id),
+              };
+              members[i] = item;
+              return true;
+            });
+          }
           callback(err, null);
         });
       },
     ],
     err => {
       if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data: users });
+      res.send({ status: 'ok', data: members });
     }
   );
 }
