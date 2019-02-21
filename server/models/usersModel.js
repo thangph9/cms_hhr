@@ -16,6 +16,14 @@ module.exports = {
     hhr_goal: 'text',
     phone: 'text',
     uniqueid: 'int',
+    video: {
+      type: 'map',
+      typeDef: '<text,uuid>',
+    },
+    audio: {
+      type: 'map',
+      typeDef: '<text,uuid>',
+    },
     createat: 'timestamp',
   },
   key: ['user_id'],
