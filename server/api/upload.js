@@ -26,6 +26,7 @@ function audioUpload(req, res) {
     },
   });
   const upload = multer({ storage: storage }); // eslint-disable-line
+
   upload.single('logo')(req, res, err => {
     if (err) {
       status = 'error';
@@ -47,7 +48,6 @@ function audioUpload(req, res) {
         description,
         createat: new Date(),
       };
-
       const instance = new models.instance.audio(audioObject); // eslint-disable-line
       // eslint-disable-next-line
       instance.save(err => {
