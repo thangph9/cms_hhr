@@ -2,23 +2,40 @@ const async = require('async'); // eslint-disable-line
 const express = require('express'); // eslint-disable-line
 // const bcrypt = require('bcryptjs');
 // const jwt = require('jsonwebtoken');
+const fs = require('fs');
+// const path = require('path');
 const multer = require('multer'); // eslint-disable-line
 
 const models = require('../settings');
 
 // const jwtprivate = fs.readFileSync('./ssl/jwtprivate.pem', 'utf8');
-const upload = multer();
+
 const router = express.Router();
 
 const Uuid = models.datatypes.Uuid; // eslint-disable-line
 
 function audioUpload(req, res) {
+  let status = '';
+  const audioid = Uuid.random();
+  const storage = multer.diskStorage({
+    destination: (_, file, cb) => {
+      cb(null, 'public/files');
+    },
+    filename: (_, file, cb) => {
+      cb(null, audioid.toString().concat('.MP3'));
+    },
+  });
+  const upload = multer({ storage: storage }); // eslint-disable-line
   upload.single('logo')(req, res, err => {
-    if (err) return res.send({ status: 'error' });
-    const audioid = Uuid.random();
+    if (err) {
+      status = 'error';
+      return false;
+    }
+
     try {
       const file = req.file; // eslint-disable-line
-      const audio = file.buffer; // eslint-disable-line
+      // const audio=file.buffer;
+      const audio = fs.readFileSync(file.path); // eslint-disable-line
       const description = {
         filename: file.originalname,
         encoding: file.encoding,
@@ -34,13 +51,22 @@ function audioUpload(req, res) {
       const instance = new models.instance.audio(audioObject); // eslint-disable-line
       // eslint-disable-next-line
       instance.save(err => {
-        if (err) return res.send({ status: 'error' });
+        if (err) {
+          status = 'error';
+          return false;
+        }
       });
     } catch (e) {
-      console.log(e);
-      return res.send({ status: 'error' });
+      status = 'error';
+      return false;
     }
-    return res.send({ status: 'ok', file: { audioid } });
+    if (status !== '') {
+      res.send({ status: 'error' });
+    } else {
+      res.send({ status: 'ok', file: { audioid } });
+    }
+    return true;
+    // return res.send({ status: 'ok', file: { audioid } });
   });
 }
 function loadAudio(req, res) {
@@ -77,6 +103,33 @@ function loadAudio(req, res) {
     }
   );
 }
+function loadAudioLocal(req, res) {
+  const params = req.params; // eslint-disable-line
+  const PARAM_IS_VALID = {};
+  async.series(
+    [
+      function initParams(callback) {
+        try {
+          PARAM_IS_VALID.audioid = models.uuidFromString(params.audioid);
+        } catch (e) {
+          res.send({ status: 'error' });
+        }
+        callback(null, null);
+      },
+    ],
+    err => {
+      if (err) return res.send({ status: 'error' });
+      const pathLocal = 'public/files/'.concat(PARAM_IS_VALID.audioid.toString().concat('.MP3'));
+      const stat = fs.readFileSync(pathLocal);
+      res.header({
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': stat.size,
+      });
+      return res.end(stat);
+    }
+  );
+}
 router.post('/upload/audio', audioUpload);
 router.get('/upload/audio/:audioid', loadAudio);
+router.get('/upload/audio/local/:audioid', loadAudioLocal);
 module.exports = router;

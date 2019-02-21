@@ -39,11 +39,13 @@ app.use((req, res, next) => {
   next();
 });
 app.use('/api', api);
+app.use(express.static(path.join(__dirname, '../public')));
 app.use(images);
 app.use(upload);
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
+
 //  Here you can add any code.
 /*
 const server = https.createServer(credentials, app);
