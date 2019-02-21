@@ -1,3 +1,7 @@
+/* eslint consistent-return: 0 */
+
+/* eslint array-callback-return: 0 */
+
 const async = require('async'); // eslint-disable-line
 const express = require('express'); // eslint-disable-line
 // const bcrypt = require('bcryptjs');
@@ -18,18 +22,20 @@ function fetch(req, res) {
         callback(null, null);
       },
       function getDataUser(callback) {
-        models.instance.users.find({}, (err, items) => {
+        models.instance.track.find({}, (err, items) => {
           if (items && items.length > 0) {
             items.map((e, i) => {
               const item = {
-                fullname: e.fullname,
-                age: new Date().getYear() - e.createat.getYear(),
-                address: e.address,
+                title: e.title,
+                date: e.date,
+                description: e.description,
                 createat: e.createat,
-                percent: 10,
-                status: ['active', 'exception', 'normal'],
-                owner: 'Active',
-                href: '/member/center/'.concat(e.user_id),
+                track_id: e.track_id,
+                status: e.status,
+                audio: e.audio,
+                icon: e.icon,
+                youtube: e.youtube,
+                local: e.local,
               };
               members[i] = item;
               return true;
@@ -46,44 +52,52 @@ function fetch(req, res) {
   );
 }
 function fetchBy(req, res) {
-  const members = [];
+  let track = {};
+  let trackData = [];
   const PARAM_IS_VALID = {};
   const params = req.params; // eslint-disable-line
   async.series(
     [
+      // eslint-disable-next-line
       function initialParam(callback) {
         try {
-          PARAM_IS_VALID.user_id = models.uuidFromString(params.user_id); // eslint-disable-line
+          PARAM_IS_VALID.track_id = models.uuidFromString(params.track_id); // eslint-disable-line
         } catch (e) {
           res.send({ status: 'invalid' });
+        } finally {
+          callback(null, null);
         }
-        callback(null, null);
       },
-      function getDataUser(callback) {
-        models.instance.users.find({ user_id: PARAM_IS_VALID.user_id }, (err, items) => {
-          if (items && items.length > 0) {
-            items.map((e, i) => {
-              const item = {
-                fullname: e.fullname,
-                age: new Date().getYear() - e.createat.getYear(),
-                address: e.address,
-                createat: e.createat,
-                percent: 10,
-                status: ['active', 'exception', 'normal'],
-                owner: 'Active',
-                href: '/member/center/'.concat(e.user_id),
-              };
-              members[i] = item;
-              return true;
-            });
-          }
+      function getDataTrack(callback) {
+        models.instance.track.find({ track_id: PARAM_IS_VALID.track_id }, (err, items) => {
+          trackData = items;
           callback(err, null);
         });
       },
+      function extraData(callback) {
+        if (trackData && trackData.length > 0) {
+          trackData.map(e => {
+            const item = {
+              title: e.title,
+              date: e.date,
+              description: e.description,
+              createat: e.createat,
+              track_id: e.track_id,
+              status: e.status,
+              audio: e.audio,
+              icon: e.icon,
+              local: e.local,
+              youtube: e.youtube,
+            };
+            track = item;
+          });
+        }
+        callback(null, null);
+      },
     ],
     err => {
-      if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data: members });
+      if (err) return res.send({ status: 'error' });
+      res.send({ status: 'ok', data: track });
     }
   );
 }
@@ -140,16 +154,51 @@ function add(req, res) {
   );
 }
 function update(req, res) {
-  const users = {};
+  let track = {};
+  const PARAM_IS_VALID = {};
+  const params = req.body;
   async.series(
     [
+      // eslint-disable-next-line
       function initialParam(callback) {
+        try {
+          PARAM_IS_VALID.track_id = models.uuidFromString(params.track_id);
+          PARAM_IS_VALID.title = params.title;
+          PARAM_IS_VALID.local = params.local;
+          PARAM_IS_VALID.audio = models.uuidFromString(params.fileID);
+          PARAM_IS_VALID.mc = params.mc;
+          PARAM_IS_VALID.date = params.date;
+          PARAM_IS_VALID.description = params.description;
+          PARAM_IS_VALID.status = params.public;
+          PARAM_IS_VALID.youtube = params.youtube;
+        } catch (e) {
+          return res.send({ status: 'invalid' });
+        }
         callback(null, null);
+      },
+      // eslint-disable-next-line
+      function addToTrack(callback) {
+        const trackObject = {
+          title: PARAM_IS_VALID.title,
+          local: PARAM_IS_VALID.local,
+          audio: PARAM_IS_VALID.audio,
+          mc: PARAM_IS_VALID.mc,
+          date: PARAM_IS_VALID.date,
+          description: PARAM_IS_VALID.description,
+          status: PARAM_IS_VALID.status,
+          youtube: PARAM_IS_VALID.youtube,
+        };
+        track = trackObject;
+        const query_object = { track_id: PARAM_IS_VALID.track_id }; // eslint-disable-line
+        const options = { if_exists: true };
+        models.instance.track.update(query_object, trackObject, options, err => {
+          callback(err, null);
+        });
       },
     ],
     err => {
       if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data: users });
+      res.send({ status: 'ok', data: track });
     }
   );
 }
@@ -160,7 +209,7 @@ function deleted(req, res) {
     [
       function initialParam(callback) {
         try {
-          PARAM_IS_VALID.user_id = models.uuidFromString(params.userid); // eslint-disable-line
+          PARAM_IS_VALID.track_id = models.uuidFromString(params.track_id); // eslint-disable-line
         } catch (e) {
           res.send({ status: 'invalid' });
         }
@@ -168,7 +217,7 @@ function deleted(req, res) {
       },
       function deleteUser(callback) {
         try {
-          models.instance.users.delete({ user_id: PARAM_IS_VALID.user_id }, err => {
+          models.instance.track.delete({ track_id: PARAM_IS_VALID.track_id }, err => {
             callback(err, null);
           });
         } catch (e) {

@@ -38,6 +38,10 @@ export default [
             name: 'list',
             component: './Upload/CardList',
           },
+          {
+            path: '/upload/edit/:track_id',
+            component: './Upload/EditForm',
+          },
         ],
       },
       {
