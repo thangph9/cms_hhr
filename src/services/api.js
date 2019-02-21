@@ -140,10 +140,20 @@ export async function queryNotices(params = {}) {
 export async function getFakeCaptcha(mobile) {
   return request(`/api/captcha?mobile=${mobile}`);
 }
+export async function fetchTrackByID(trackID) {
+  return request(`/api/track/get/${trackID}`);
+}
 
 export async function submitTrackAdd(params) {
   return request('/api/track/form/add', {
     method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function submitTrackUpdate(params) {
+  return request('/api/track/form/update', {
+    method: 'PUT',
     body: params,
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });

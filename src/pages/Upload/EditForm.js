@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import moment from 'moment';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import {
@@ -21,8 +22,9 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
 
-@connect(({ loading }) => ({
-  submitting: loading.effects['track/submitRegularForm'],
+@connect(({ loading, track }) => ({
+  submitting: loading.effects['track/submitUpdate'],
+  track,
 }))
 @Form.create()
 class BasicForms extends PureComponent {
@@ -30,15 +32,34 @@ class BasicForms extends PureComponent {
     fileID: '',
   };
 
+  componentDidMount() {
+    const { dispatch, match } = this.props;
+    try {
+      dispatch({
+        type: 'track/fetchTrackByID',
+        payload: match.params.track_id,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   handleSubmit = e => {
-    const { dispatch, form } = this.props;
+    const {
+      dispatch,
+      form,
+      match,
+      track: { track },
+    } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        values.fileID = this.state.fileID; // eslint-disable-line
+        values.fileID = this.state.fileID || track.audio; // eslint-disable-line
+        values.track_id = match.params.track_id; // eslint-disable-line
         delete values.upload; // eslint-disable-line
+
         dispatch({
-          type: 'track/submitRegularForm',
+          type: 'track/submitUpdate',
           payload: values,
         });
       }
@@ -68,7 +89,10 @@ class BasicForms extends PureComponent {
   };
 
   render() {
-    const { submitting } = this.props;
+    const {
+      submitting,
+      track: { track },
+    } = this.props;
     const {
       form: { getFieldDecorator, getFieldValue },
     } = this.props;
@@ -84,14 +108,12 @@ class BasicForms extends PureComponent {
         md: { span: 10 },
       },
     };
-
     const submitFormLayout = {
       wrapperCol: {
         xs: { span: 24, offset: 0 },
         sm: { span: 10, offset: 7 },
       },
     };
-
     return (
       <PageHeaderWrapper
         title={<FormattedMessage id="app.forms.basic.title" />}
@@ -107,8 +129,10 @@ class BasicForms extends PureComponent {
                     message: formatMessage({ id: 'validation.title.required' }),
                   },
                 ],
+                initialValue: track.title,
               })(<Input placeholder={formatMessage({ id: 'form.title.placeholder' })} />)}
             </FormItem>
+
             <FormItem {...formItemLayout} label="Đài">
               {getFieldDecorator('local', {
                 rules: [
@@ -117,7 +141,7 @@ class BasicForms extends PureComponent {
                     message: formatMessage({ id: 'validation.title.required' }),
                   },
                 ],
-                initialValue: 'HN',
+                initialValue: track.local,
               })(
                 <Select>
                   <Option value="HN">Hà Nội</Option>
@@ -145,6 +169,7 @@ class BasicForms extends PureComponent {
                     message: formatMessage({ id: 'validation.date.required' }),
                   },
                 ],
+                initialValue: moment(track.date),
               })(<DatePicker onChange={this.onChange} style={{ width: '100%' }} />)}
             </FormItem>
             <FormItem {...formItemLayout} label={<FormattedMessage id="form.goal.label" />}>
@@ -155,6 +180,7 @@ class BasicForms extends PureComponent {
                     message: formatMessage({ id: 'validation.goal.required' }),
                   },
                 ],
+                initialValue: track.description,
               })(
                 <TextArea
                   style={{ minHeight: 32 }}
@@ -176,9 +202,9 @@ class BasicForms extends PureComponent {
                 </span>
               }
             >
-              {getFieldDecorator('mc')(
-                <Input placeholder={formatMessage({ id: 'form.client.placeholder' })} />
-              )}
+              {getFieldDecorator('mc', {
+                initialValue: track.mc,
+              })(<Input placeholder={formatMessage({ id: 'form.client.placeholder' })} />)}
             </FormItem>
             <FormItem
               {...formItemLayout}
@@ -187,7 +213,7 @@ class BasicForms extends PureComponent {
             >
               <div>
                 {getFieldDecorator('public', {
-                  initialValue: '1',
+                  initialValue: track.status,
                 })(
                   <Radio.Group>
                     <Radio value="1">
@@ -227,9 +253,9 @@ class BasicForms extends PureComponent {
             </FormItem>
             <FormItem {...formItemLayout} label={<FormattedMessage id="form.public" />}>
               <div>
-                {getFieldDecorator('youtube', {})(
-                  <Checkbox onChange={this.uploadYoutube}>Youtube</Checkbox>
-                )}
+                {getFieldDecorator('youtube', {
+                  initialValue: track.youtube,
+                })(<Checkbox onChange={this.uploadYoutube}>Youtube</Checkbox>)}
               </div>
             </FormItem>
             <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
