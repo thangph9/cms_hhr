@@ -20,6 +20,27 @@ export default [
       // dashboard
       { path: '/', redirect: '/member' },
       {
+        name: 'upload',
+        icon: 'form',
+        path: '/upload',
+        routes: [
+          {
+            path: '/upload',
+            redirect: '/upload/track',
+          },
+          {
+            path: '/upload/track',
+            name: 'track',
+            component: './Upload/BasicForm',
+          },
+          {
+            path: '/upload/list',
+            name: 'list',
+            component: './Upload/CardList',
+          },
+        ],
+      },
+      {
         name: 'member',
         icon: 'profile',
         path: '/member',

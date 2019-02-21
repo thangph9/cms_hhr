@@ -36,7 +36,9 @@ export default {
   'menu.account.trigger': 'Trigger Error',
   'menu.account.logout': 'Logout',
   'menu.member': 'Member',
-
+  'menu.upload': 'Upload',
+  'menu.upload.track': 'Add',
+  'menu.upload.list': 'List',
   'menu.member.cardlist': 'CardList',
   'menu.member.basiclist': 'BasicList',
   'menu.member.searchtable': 'SearchTable',
