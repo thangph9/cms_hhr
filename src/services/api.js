@@ -1,5 +1,6 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
+import { getAuthority } from '@/utils/authority';
 
 export async function queryProjectNotice() {
   return request('/api/project/notice');
@@ -138,4 +139,12 @@ export async function queryNotices(params = {}) {
 
 export async function getFakeCaptcha(mobile) {
   return request(`/api/captcha?mobile=${mobile}`);
+}
+
+export async function submitTrackAdd(params) {
+  return request('/api/track/form/add', {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
 }

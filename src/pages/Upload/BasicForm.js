@@ -8,18 +8,17 @@ import {
   Select,
   Button,
   Card,
-  InputNumber,
   Radio,
   Icon,
   Tooltip,
   Upload,
+  Checkbox,
 } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './style.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 
 @connect(({ loading }) => ({
@@ -27,11 +26,16 @@ const { TextArea } = Input;
 }))
 @Form.create()
 class BasicForms extends PureComponent {
+  state = {
+    fileID: '',
+  };
+
   handleSubmit = e => {
     const { dispatch, form } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
+        values.fileID = this.state.fileID; // eslint-disable-line
         dispatch({
           type: 'form/submitRegularForm',
           payload: values,
@@ -41,11 +45,25 @@ class BasicForms extends PureComponent {
   };
 
   normFile = e => {
-    console.log('Upload event:', e);
+    try {
+      this.setState({
+        fileID: e.file.response.file.audioid,
+      });
+    } catch (ex) {
+      console.log(ex);
+    }
     if (Array.isArray(e)) {
       return e;
     }
     return e && e.fileList;
+  };
+
+  onChange = e => {
+    console.log(e);
+  };
+
+  uploadYoutube = e => {
+    console.log(e);
   };
 
   render() {
@@ -90,6 +108,22 @@ class BasicForms extends PureComponent {
                 ],
               })(<Input placeholder={formatMessage({ id: 'form.title.placeholder' })} />)}
             </FormItem>
+            <FormItem {...formItemLayout} label="Đài">
+              {getFieldDecorator('local', {
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'validation.title.required' }),
+                  },
+                ],
+                initialValue: 'HN',
+              })(
+                <Select>
+                  <Option value="HN">Hà Nội</Option>
+                  <Option value="HCM">Tp.HCM</Option>
+                </Select>
+              )}
+            </FormItem>
             <Form.Item {...formItemLayout} label="Upload">
               {getFieldDecorator('upload', {
                 valuePropName: 'fileList',
@@ -110,18 +144,10 @@ class BasicForms extends PureComponent {
                     message: formatMessage({ id: 'validation.date.required' }),
                   },
                 ],
-              })(
-                <RangePicker
-                  style={{ width: '100%' }}
-                  placeholder={[
-                    formatMessage({ id: 'form.date.placeholder.start' }),
-                    formatMessage({ id: 'form.date.placeholder.end' }),
-                  ]}
-                />
-              )}
+              })(<DatePicker onChange={this.onChange} style={{ width: '100%' }} />)}
             </FormItem>
             <FormItem {...formItemLayout} label={<FormattedMessage id="form.goal.label" />}>
-              {getFieldDecorator('goal', {
+              {getFieldDecorator('description', {
                 rules: [
                   {
                     required: true,
@@ -136,29 +162,12 @@ class BasicForms extends PureComponent {
                 />
               )}
             </FormItem>
-            <FormItem {...formItemLayout} label={<FormattedMessage id="form.standard.label" />}>
-              {getFieldDecorator('standard', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'validation.standard.required' }),
-                  },
-                ],
-              })(
-                <TextArea
-                  style={{ minHeight: 32 }}
-                  placeholder={formatMessage({ id: 'form.standard.placeholder' })}
-                  rows={4}
-                />
-              )}
-            </FormItem>
             <FormItem
               {...formItemLayout}
               label={
                 <span>
-                  <FormattedMessage id="form.client.label" />
+                  MC
                   <em className={styles.optional}>
-                    <FormattedMessage id="form.optional" />
                     <Tooltip title={<FormattedMessage id="form.client.label.tooltip" />}>
                       <Icon type="info-circle-o" style={{ marginRight: 4 }} />
                     </Tooltip>
@@ -166,44 +175,9 @@ class BasicForms extends PureComponent {
                 </span>
               }
             >
-              {getFieldDecorator('client')(
+              {getFieldDecorator('mc')(
                 <Input placeholder={formatMessage({ id: 'form.client.placeholder' })} />
               )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  <FormattedMessage id="form.invites.label" />
-                  <em className={styles.optional}>
-                    <FormattedMessage id="form.optional" />
-                  </em>
-                </span>
-              }
-            >
-              {getFieldDecorator('invites')(
-                <Input placeholder={formatMessage({ id: 'form.invites.placeholder' })} />
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label={
-                <span>
-                  <FormattedMessage id="form.weight.label" />
-                  <em className={styles.optional}>
-                    <FormattedMessage id="form.optional" />
-                  </em>
-                </span>
-              }
-            >
-              {getFieldDecorator('weight')(
-                <InputNumber
-                  placeholder={formatMessage({ id: 'form.weight.placeholder' })}
-                  min={0}
-                  max={100}
-                />
-              )}
-              <span className="ant-form-text">%</span>
             </FormItem>
             <FormItem
               {...formItemLayout}
@@ -248,6 +222,13 @@ class BasicForms extends PureComponent {
                     </Select>
                   )}
                 </FormItem>
+              </div>
+            </FormItem>
+            <FormItem {...formItemLayout} label={<FormattedMessage id="form.public" />}>
+              <div>
+                {getFieldDecorator('youtube', {})(
+                  <Checkbox onChange={this.uploadYoutube}>Youtube</Checkbox>
+                )}
               </div>
             </FormItem>
             <FormItem {...submitFormLayout} style={{ marginTop: 32 }}>
