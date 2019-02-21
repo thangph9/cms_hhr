@@ -36,6 +36,7 @@ class BasicForms extends PureComponent {
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         values.fileID = this.state.fileID; // eslint-disable-line
+        delete values.upload; // eslint-disable-line
         dispatch({
           type: 'form/submitRegularForm',
           payload: values,
