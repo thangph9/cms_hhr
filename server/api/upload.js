@@ -33,7 +33,10 @@ function audioUpload(req, res) {
       };
 
       const instance = new models.instance.audio(audioObject); // eslint-disable-line
-      instance.save();
+      // eslint-disable-next-line
+      instance.save(() => {
+        if (err) return res.send({ status: 'error' });
+      });
     } catch (e) {
       return res.send({ status: 'error' });
     }
