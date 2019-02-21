@@ -21,7 +21,6 @@ function audioUpload(req, res) {
       const audio = file.buffer; // eslint-disable-line
       const description = {
         filename: file.originalname,
-        size: file.size.concat(''),
         encoding: file.encoding,
         mimetype: file.mimetype,
       };
@@ -34,10 +33,11 @@ function audioUpload(req, res) {
 
       const instance = new models.instance.audio(audioObject); // eslint-disable-line
       // eslint-disable-next-line
-      instance.save(() => {
+      instance.save(err => {
         if (err) return res.send({ status: 'error' });
       });
     } catch (e) {
+      console.log(e);
       return res.send({ status: 'error' });
     }
     return res.send({ status: 'ok', file: { audioid } });
@@ -67,16 +67,16 @@ function loadAudio(req, res) {
       },
     ],
     err => {
-      if (err) res.send({ status: 'error' });
+      if (err) return res.send({ status: 'error' });
       const stat = data.audio;
       res.header({
         'Content-Type': 'audio/mpeg',
         'Content-Length': stat.size,
       });
-      res.end(stat);
+      return res.end(stat);
     }
   );
 }
 router.post('/upload/audio', audioUpload);
-router.get('/upload/:audioid', loadAudio);
+router.get('/upload/audio/:audioid', loadAudio);
 module.exports = router;

@@ -5,4 +5,5 @@ var express = require('express');
 var router = express.Router();
 router.use('/user', require('./user'));
 router.use('/upload', require('./upload'));
+router.use('/track', require('./track'));
 module.exports = router;
