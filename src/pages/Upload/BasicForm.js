@@ -137,6 +137,9 @@ class BasicForms extends PureComponent {
                 </Upload>
               )}
             </Form.Item>
+            <FormItem {...formItemLayout} label={<span>Link</span>}>
+              {getFieldDecorator('link')(<Input placeholder="Link nghe" />)}
+            </FormItem>
             <FormItem {...formItemLayout} label={<FormattedMessage id="form.date.label" />}>
               {getFieldDecorator('date', {
                 rules: [
