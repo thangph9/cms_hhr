@@ -42,6 +42,31 @@ export default [
             path: '/upload/edit/:track_id',
             component: './Upload/EditForm',
           },
+          {
+            path: '/upload/detail/:track_id',
+            component: './Upload/EditForm',
+          },
+        ],
+      },
+      {
+        name: 'question',
+        icon: 'question',
+        path: '/question',
+        routes: [
+          {
+            path: '/question',
+            redirect: '/question/form',
+          },
+          {
+            path: '/question/form',
+            name: 'form',
+            component: './Question/BasicForm',
+          },
+          {
+            path: '/question/list',
+            name: 'list',
+            component: './Question/BasicList',
+          },
         ],
       },
       {
