@@ -1,6 +1,6 @@
 // import { routerRedux } from 'dva/router';
 import { message } from 'antd';
-import { submitTrackAdd, fetchTrackByID, submitTrackUpdate } from '@/services/api';
+import { submitTrackAdd, fetchTrackByID, submitTrackUpdate, fetchTrack } from '@/services/api';
 
 export default {
   namespace: 'track',
@@ -13,7 +13,7 @@ export default {
       amount: '500',
     },
     track: {},
-    trackList: [],
+    list: [],
   },
   effects: {
     *submitRegularForm({ payload }, { call }) {
@@ -45,6 +45,19 @@ export default {
         payload: track,
       });
     },
+    *fetch({ payload }, { call, put }) {
+      const response = yield call(fetchTrack, payload);
+      let track = [];
+      if (response.status === 'ok') {
+        track = response.data;
+      } else {
+        message.error('Không lấy được dữ liệu!');
+      }
+      yield put({
+        type: 'fetchReducer',
+        payload: track,
+      });
+    },
   },
 
   reducers: {
@@ -61,6 +74,12 @@ export default {
       return {
         ...state,
         track: { ...payload },
+      };
+    },
+    fetchReducer(state, { payload }) {
+      return {
+        ...state,
+        list: payload,
       };
     },
   },

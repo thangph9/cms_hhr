@@ -1,33 +1,47 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Card, Button, Icon, List } from 'antd';
-
+import { Link } from 'react-router-dom';
+import { Card, Button, Icon, List, Modal, Dropdown, Menu } from 'antd';
 import Ellipsis from '@/components/Ellipsis';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
+import moment from 'moment';
 
 import styles from './CardList.less';
 
-@connect(({ list, loading }) => ({
-  list,
-  loading: loading.models.list,
+@connect(({ loading, track }) => ({
+  track,
+  loading: loading.models.track,
 }))
 class CardList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'list/fetch',
+      type: 'track/fetch',
       payload: {
         count: 8,
       },
     });
   }
 
+  deleteItem = id => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'track/delete',
+      payload: { id },
+    });
+  };
+
   render() {
     const {
-      list: { list },
+      track: { list },
       loading,
     } = this.props;
-
+    const paginationProps = {
+      showSizeChanger: true,
+      showQuickJumper: true,
+      pageSize: 10,
+      total: list.length,
+    };
     const content = (
       <div className={styles.pageHeaderContent}>
         <p>
@@ -59,25 +73,64 @@ class CardList extends PureComponent {
         />
       </div>
     );
-
+    const editAndDelete = (key, currentItem) => {
+      if (key === 'public') alert('Update Public');
+      else if (key === 'delete') {
+        Modal.confirm({
+          title: 'Xác nhận',
+          content: 'Bạn muốn xoá nội dung？',
+          okText: 'Ok',
+          cancelText: 'Cancel',
+          onOk: () => this.deleteItem(currentItem.track_id),
+        });
+      }
+    };
+    const MoreBtn = props => (
+      <Dropdown
+        overlay={
+          <Menu onClick={({ key }) => editAndDelete(key, props.current)}>
+            <Menu.Item key="public">Public</Menu.Item>
+            <Menu.Item key="delete">Xoá</Menu.Item>
+          </Menu>
+        }
+      >
+        <a>
+          Lựa chọn <Icon type="down" />
+        </a>
+      </Dropdown>
+    );
     return (
       <PageHeaderWrapper title="卡片列表" content={content} extraContent={extraContent}>
         <div className={styles.cardList}>
           <List
             rowKey="id"
             loading={loading}
+            pagination={paginationProps}
             grid={{ gutter: 24, lg: 3, md: 2, sm: 1, xs: 1 }}
             dataSource={['', ...list]}
             renderItem={item =>
               item ? (
-                <List.Item key={item.id}>
-                  <Card hoverable className={styles.card} actions={[<a>操作一</a>, <a>操作二</a>]}>
+                <List.Item key={item.track_id}>
+                  <Card
+                    hoverable
+                    className={styles.card}
+                    actions={[
+                      <Link to={`/upload/edit/${item.track_id}`}>Sửa</Link>,
+                      <MoreBtn current={item} />,
+                    ]}
+                  >
                     <Card.Meta
                       avatar={<img alt="" className={styles.cardAvatar} src={item.avatar} />}
-                      title={<a>{item.title}</a>}
+                      title={<Link to={`/upload/edit/${item.track_id}`}>{item.title}</Link>}
                       description={
                         <Ellipsis className={styles.item} lines={3}>
                           {item.description}
+                          <br />
+                          MC: {item.mc}
+                          <br />
+                          Ngày: {moment(item.date).format('DD/MM/YYYY')}
+                          <br />
+                          {item.local}
                         </Ellipsis>
                       }
                     />
@@ -86,7 +139,7 @@ class CardList extends PureComponent {
               ) : (
                 <List.Item>
                   <Button type="dashed" className={styles.newButton}>
-                    <Icon type="plus" /> 新增产品
+                    <Icon type="plus" /> Upload
                   </Button>
                 </List.Item>
               )
