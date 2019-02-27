@@ -143,6 +143,9 @@ export async function getFakeCaptcha(mobile) {
 export async function fetchTrackByID(trackID) {
   return request(`/api/track/get/${trackID}`);
 }
+export async function fetchTrack() {
+  return request(`/api/track/list`);
+}
 
 export async function submitTrackAdd(params) {
   return request('/api/track/form/add', {
