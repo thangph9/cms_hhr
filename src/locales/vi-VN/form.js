@@ -36,4 +36,10 @@ export default {
   'form.publicUsers.option.A': 'Colleague A',
   'form.publicUsers.option.B': 'Colleague B',
   'form.publicUsers.option.C': 'Colleague C',
+  'form.question.radio.option': 'Lựa chọn',
+  'form.question.radio.input': 'Nhập',
+  'form.question.radio.checkbox': 'Tích chọn',
+  'form.question.options.label': 'Kiểu câu hỏi',
+  'form.question.options.label.help': 'Lựa chọn kiểu để hiện thi đúng định dạng câu hỏi',
+  'form.answer.placeholder': 'Nhập đáp án',
 };

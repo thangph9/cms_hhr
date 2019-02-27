@@ -42,4 +42,7 @@ export default {
   'menu.member.cardlist': 'CardList',
   'menu.member.basiclist': 'BasicList',
   'menu.member.searchtable': 'SearchTable',
+  'menu.question.form': 'Add',
+  'menu.question.list': 'List',
+  'menu.question': 'Question',
 };

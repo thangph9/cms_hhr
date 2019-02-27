@@ -161,3 +161,11 @@ export async function submitTrackUpdate(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+
+export async function submitQuestion(params) {
+  return request('/api/question/form/add', {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
