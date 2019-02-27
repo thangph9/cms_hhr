@@ -90,6 +90,9 @@ class CardList extends PureComponent {
         overlay={
           <Menu onClick={({ key }) => editAndDelete(key, props.current)}>
             <Menu.Item key="public">Public</Menu.Item>
+            <Menu.Item key="edit">
+              <Link to={`/upload/edit/${props.current.track_id}`}>Sửa</Link>
+            </Menu.Item>
             <Menu.Item key="delete">Xoá</Menu.Item>
           </Menu>
         }
@@ -115,7 +118,7 @@ class CardList extends PureComponent {
                     hoverable
                     className={styles.card}
                     actions={[
-                      <Link to={`/upload/edit/${item.track_id}`}>Sửa</Link>,
+                      <Link to={`/upload/detail/${item.track_id}`}>Chi tiết</Link>,
                       <MoreBtn current={item} />,
                     ]}
                   >
@@ -124,9 +127,9 @@ class CardList extends PureComponent {
                       title={<Link to={`/upload/edit/${item.track_id}`}>{item.title}</Link>}
                       description={
                         <Ellipsis className={styles.item} lines={3}>
-                          {item.description}
-                          <br />
                           MC: {item.mc}
+                          <br />
+                          Đài: {item.local}
                           <br />
                           Ngày: {moment(item.date).format('DD/MM/YYYY')}
                           <br />
