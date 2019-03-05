@@ -65,7 +65,11 @@ export default [
           {
             path: '/question/list',
             name: 'list',
-            component: './Question/BasicList',
+            component: './Question/TableList',
+          },
+          {
+            path: '/question/edit/:question_id',
+            component: './Question/EditForm',
           },
         ],
       },
