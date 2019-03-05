@@ -1,6 +1,12 @@
 // import { routerRedux } from 'dva/router';
 import { message } from 'antd';
-import { submitTrackUpdate, submitQuestion } from '@/services/api';
+import {
+  submitQuestionUpdate,
+  submitQuestion,
+  fetchQuestion,
+  fetchQuestionBy,
+  delQuestion,
+} from '@/services/api';
 
 export default {
   namespace: 'question',
@@ -12,8 +18,11 @@ export default {
       receiverName: 'Alex',
       amount: '500',
     },
-    track: {},
-    list: [],
+    question: {},
+    data: {
+      list: [],
+      pagination: {},
+    },
   },
   effects: {
     *submitRegularForm({ payload }, { call }) {
@@ -25,11 +34,45 @@ export default {
       }
     },
     *submitUpdate({ payload }, { call }) {
-      const response = yield call(submitTrackUpdate, payload);
+      const response = yield call(submitQuestionUpdate, payload);
       if (response.status === 'ok') {
         message.success('Thông tin đã được thay đổi');
       } else {
         message.error('Không thể sửa đổi thông tin!');
+      }
+    },
+    *fetch(_, { call, put }) {
+      const response = yield call(fetchQuestion);
+      if (response.status === 'ok') {
+        yield put({
+          type: 'fetchReducer',
+          payload: response.data,
+        });
+      } else {
+        message.error('Không lấy được dữ liệu !');
+      }
+    },
+    *fetchBy({ payload }, { call, put }) {
+      const response = yield call(fetchQuestionBy, payload);
+      if (response.status === 'ok') {
+        if (Array.isArray(response.data)) {
+          yield put({
+            type: 'fetchByReducer',
+            payload: response.data,
+          });
+        } else {
+          message.error('Lỗi dữ liệu không đúng !');
+        }
+      } else {
+        message.error('Không lấy được dữ liệu !');
+      }
+    },
+    *delQuestion({ payload }, { call }) {
+      const response = yield call(delQuestion, payload);
+      if (response.status === 'ok') {
+        message.success('Câu hỏi đã được xoá ');
+      } else {
+        message.error('Không thể xoá câu hỏi!');
       }
     },
   },
@@ -42,6 +85,20 @@ export default {
           ...state.step,
           ...payload,
         },
+      };
+    },
+    fetchReducer(state, { payload }) {
+      return {
+        ...state,
+        data: {
+          list: payload,
+        },
+      };
+    },
+    fetchByReducer(state, { payload }) {
+      return {
+        ...state,
+        question: payload,
       };
     },
   },

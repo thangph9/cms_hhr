@@ -169,3 +169,28 @@ export async function submitQuestion(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+export async function submitQuestionUpdate(params) {
+  return request('/api/question/form/update', {
+    method: 'PUT',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function fetchQuestion() {
+  return request('/api/question/fetch', {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function fetchQuestionBy(params) {
+  return request(`/api/question/fetch/${params}`, {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function delQuestion(params) {
+  return request(`/api/question/del/${params}`, {
+    method: 'DELETE',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
