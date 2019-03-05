@@ -167,9 +167,14 @@ class EditForm extends PureComponent {
     };
     const ListAnswer = props => {
       let group = '';
+      const { listAnswer } = props.list;
+      if (!Array.isArray(listAnswer)) {
+        return <Row>Error</Row>;
+      }
       if (props.list.questionType === '2') {
         const list = [];
-        props.list.listAnswer.forEach((e, i) => {
+
+        listAnswer.forEach((e, i) => {
           list[i] = (
             <Row key={e}>
               <Col xs={18}>
@@ -189,7 +194,7 @@ class EditForm extends PureComponent {
         group = <Radio.Group style={{ width: '100%' }}>{list}</Radio.Group>;
       } else if (props.list.questionType === '3') {
         const list = [];
-        props.list.listAnswer.forEach((e, i) => {
+        listAnswer.forEach((e, i) => {
           list[i] = (
             <Row key={e}>
               <Col span={18}>
