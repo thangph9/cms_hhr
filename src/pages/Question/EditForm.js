@@ -65,8 +65,7 @@ class EditForm extends PureComponent {
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        values.answer = listAnswer; // eslint-disable-line
-        values.question_id = questionId; // eslint-disable-line
+        Object.assign(values, { answer: listAnswer, question_id: questionId });
         dispatch({
           type: 'question/submitUpdate',
           payload: values,
