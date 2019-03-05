@@ -43,14 +43,16 @@ class EditForm extends PureComponent {
       // Perform some operation
 
       const q = nextProps.question;
+
       if (q) {
+        const { answer, title, type } = q.question;
         this.setState({
           question: {
-            listAnswer: q.answer,
-            questionType: q.type,
+            listAnswer: answer,
+            questionType: type,
           },
-          title: q.title,
-          questionId: q.question_id,
+          title,
+          questionId: q.question.question_id,
         });
       }
     }

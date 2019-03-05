@@ -55,14 +55,10 @@ export default {
     *fetchBy({ payload }, { call, put }) {
       const response = yield call(fetchQuestionBy, payload);
       if (response.status === 'ok') {
-        if (Array.isArray(response.data)) {
-          yield put({
-            type: 'fetchByReducer',
-            payload: response.data,
-          });
-        } else {
-          message.error('Lỗi dữ liệu không đúng !');
-        }
+        yield put({
+          type: 'fetchByReducer',
+          payload: response.data,
+        });
       } else {
         message.error('Không lấy được dữ liệu !');
       }
