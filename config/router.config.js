@@ -74,6 +74,22 @@ export default [
         ],
       },
       {
+        name: 'group',
+        icon: 'question-circle',
+        path: '/group',
+        routes: [
+          {
+            path: '/group',
+            redirect: '/group/form',
+          },
+          {
+            path: '/group/form',
+            name: 'form',
+            component: './Group/BasicForm',
+          },
+        ],
+      },
+      {
         name: 'member',
         icon: 'profile',
         path: '/member',

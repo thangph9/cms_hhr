@@ -7,4 +7,5 @@ router.use('/user', require('./user'));
 router.use('/upload', require('./upload'));
 router.use('/track', require('./track'));
 router.use('/question', require('./question'));
+router.use('/group', require('./group'));
 module.exports = router;

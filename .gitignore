@@ -10,7 +10,6 @@ _roadhog-api-doc
 /dist
 /.vscode
 
-/server
 # misc
 .DS_Store
 npm-debug.log*

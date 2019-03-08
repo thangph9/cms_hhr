@@ -7,6 +7,7 @@ module.exports = {
       type: 'set',
       typeDef: '<text>',
     },
+    group_id: 'uuid',
   },
   key: ['question_id'],
 };

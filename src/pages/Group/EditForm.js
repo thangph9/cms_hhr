@@ -1,27 +1,22 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable react/no-array-index-key */
-/* eslint-disable arrow-body-style */
-/* eslint-disable react/no-unused-state */
-/* eslint-disable react/destructuring-assignment */
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
-import { Row, Col, Form, Input, Button, Card, Radio, Icon, Checkbox, Select } from 'antd';
+import { Row, Col, Form, Input, Button, Card, Radio, Icon, Checkbox } from 'antd';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 // import styles from './style.less';
 
 const FormItem = Form.Item;
-const { Option } = Select;
+// const { Option } = Select;
 // const { RangePicker } = DatePicker;
 // const { TextArea } = Input;
 const CheckboxGroup = Checkbox.Group;
 
-@connect(({ loading, group }) => ({
+@connect(({ loading, question }) => ({
+  question,
   submitting: loading.effects['form/submitRegularForm'],
-  group,
 }))
 @Form.create()
-class BasicForms extends PureComponent {
+class EditForm extends PureComponent {
   state = {
     question: {
       listAnswer: [],
@@ -29,40 +24,57 @@ class BasicForms extends PureComponent {
     },
     stateStatus: 'add',
     index: 0,
-    group: [],
   };
 
   componentDidMount() {
-    // eslint-disable-next-line react/destructuring-assignment
-    this.props.dispatch({
-      type: 'group/getgroup',
+    const {
+      dispatch,
+      match: { params },
+    } = this.props;
+    dispatch({
+      type: 'question/fetchBy',
+      payload: params.question_id,
     });
   }
 
-  // eslint-disable-next-line react/sort-comp
+  componentWillReceiveProps(nextProps) {
+    const { question } = this.props;
+    if (nextProps.question !== question) {
+      // Perform some operation
+
+      const q = nextProps.question;
+
+      if (q) {
+        const { answer, title, type } = q.question;
+        this.setState({
+          question: {
+            listAnswer: answer,
+            questionType: type,
+          },
+          title,
+          questionId: q.question.question_id,
+        });
+      }
+    }
+  }
+
   handleSubmit = e => {
     const { dispatch, form } = this.props;
+    const {
+      question: { listAnswer },
+      questionId,
+    } = this.state;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        values.answer = this.state.question.listAnswer; // eslint-disable-line
+        Object.assign(values, { answer: listAnswer, question_id: questionId });
         dispatch({
-          type: 'question/submitRegularForm',
+          type: 'question/submitUpdate',
           payload: values,
         });
       }
     });
   };
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.group.getgroup !== nextProps.group.getgroup) {
-      if (nextProps.group.getgroup.status === 'ok') {
-        this.setState({
-          group: nextProps.group.getgroup.data,
-        });
-      }
-    }
-  }
 
   normFile = e => {
     console.log('Upload event:', e);
@@ -98,9 +110,12 @@ class BasicForms extends PureComponent {
 
   handleChangeOptions = e => {
     const value = e.target;
-    const { stateStatus } = this.state;
+    const { stateStatus, question } = this.state;
     this.setState({
-      question: { listAnswer: [], questionType: value.value },
+      question: {
+        ...question,
+        questionType: value.value,
+      },
       stateStatus,
     });
   };
@@ -127,16 +142,12 @@ class BasicForms extends PureComponent {
     });
   };
 
-  handleChangeOption(value) {
-    console.log(value);
-  }
-
   render() {
     const { submitting } = this.props;
     const {
       form: { getFieldDecorator, getFieldValue },
     } = this.props;
-    const { question } = this.state;
+    const { question, title } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -157,9 +168,14 @@ class BasicForms extends PureComponent {
     };
     const ListAnswer = props => {
       let group = '';
+      const { listAnswer } = props.list;
+      if (!Array.isArray(listAnswer)) {
+        return <Row>Error</Row>;
+      }
       if (props.list.questionType === '2') {
         const list = [];
-        props.list.listAnswer.forEach((e, i) => {
+
+        listAnswer.forEach((e, i) => {
           list[i] = (
             <Row key={e}>
               <Col xs={18}>
@@ -179,7 +195,7 @@ class BasicForms extends PureComponent {
         group = <Radio.Group style={{ width: '100%' }}>{list}</Radio.Group>;
       } else if (props.list.questionType === '3') {
         const list = [];
-        props.list.listAnswer.forEach((e, i) => {
+        listAnswer.forEach((e, i) => {
           list[i] = (
             <Row key={e}>
               <Col span={18}>
@@ -216,32 +232,10 @@ class BasicForms extends PureComponent {
                     message: formatMessage({ id: 'validation.title.required' }),
                   },
                 ],
+                initialValue: title,
               })(<Input placeholder={formatMessage({ id: 'form.title.placeholder' })} />)}
             </FormItem>
-            <FormItem {...formItemLayout} label={<FormattedMessage id="form.group.label" />}>
-              {getFieldDecorator('group', {
-                rules: [
-                  {
-                    required: true,
-                    message: 'Vui lòng chọn group',
-                  },
-                ],
-              })(
-                <Select
-                  placeholder="Lựa chọn nhóm group"
-                  style={{ width: 400 }}
-                  onChange={e => this.handleChangeOption(e)}
-                >
-                  {this.state.group.map((v, i) => {
-                    return (
-                      <Option key={i} value={v.group_id}>
-                        {v.title}
-                      </Option>
-                    );
-                  })}
-                </Select>
-              )}
-            </FormItem>
+
             <FormItem
               {...formItemLayout}
               label={<FormattedMessage id="form.question.options.label" />}
@@ -249,7 +243,7 @@ class BasicForms extends PureComponent {
             >
               <div>
                 {getFieldDecorator('options', {
-                  initialValue: '1',
+                  initialValue: question.questionType,
                   onChange: this.handleChangeOptions,
                 })(
                   <Radio.Group>
@@ -307,4 +301,4 @@ class BasicForms extends PureComponent {
   }
 }
 
-export default BasicForms;
+export default EditForm;

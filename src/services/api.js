@@ -169,6 +169,21 @@ export async function submitQuestion(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+
+export async function submitGroup(params) {
+  return request('/api/group/form/add', {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function getGroup(params) {
+  return request('/api/group/form/get', {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
 export async function submitQuestionUpdate(params) {
   return request('/api/question/form/update', {
     method: 'PUT',

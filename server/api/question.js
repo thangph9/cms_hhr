@@ -16,6 +16,7 @@ function add(req, res) {
           PARAM_IS_VALID.question_id = Uuid.random();
           PARAM_IS_VALID.title = params.title;
           PARAM_IS_VALID.type = params.options;
+          PARAM_IS_VALID.group_id = params.group;
           PARAM_IS_VALID.answer = params.answer || [];
         } catch (e) {
           console.log(e);
@@ -28,6 +29,7 @@ function add(req, res) {
           title: PARAM_IS_VALID.title,
           type: PARAM_IS_VALID.type,
           answer: PARAM_IS_VALID.answer,
+          group_id: models.uuidFromString(PARAM_IS_VALID.group_id),
         };
         const instance = new models.instance.question(questionObject); // eslint-disable-line
         instance.save(err => {
