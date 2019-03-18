@@ -140,6 +140,7 @@ export async function queryNotices(params = {}) {
 export async function getFakeCaptcha(mobile) {
   return request(`/api/captcha?mobile=${mobile}`);
 }
+// Track table
 export async function fetchTrackByID(trackID) {
   return request(`/api/track/get/${trackID}`);
 }
@@ -161,15 +162,7 @@ export async function submitTrackUpdate(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
-
-export async function submitQuestion(params) {
-  return request('/api/question/form/add', {
-    method: 'POST',
-    body: params,
-    headers: { 'X-Access-Token': getAuthority()[0].token },
-  });
-}
-
+// Group Table
 export async function submitGroup(params) {
   return request('/api/group/form/add', {
     method: 'POST',
@@ -179,6 +172,14 @@ export async function submitGroup(params) {
 }
 export async function getGroup(params) {
   return request('/api/group/form/get', {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+// Question Table
+export async function submitQuestion(params) {
+  return request('/api/question/form/add', {
     method: 'POST',
     body: params,
     headers: { 'X-Access-Token': getAuthority()[0].token },
@@ -209,3 +210,38 @@ export async function delQuestion(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+
+// Members Table
+export async function submitMembers(params) {
+  return request('/api/members/form/add', {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function submitMembersUpdate(params) {
+  return request('/api/members/form/update', {
+    method: 'PUT',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function fetchMembers() {
+  return request('/api/members/fetch', {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function fetchMembersBy(params) {
+  return request(`/api/members/fetch/${params}`, {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function delMembers(params) {
+  return request(`/api/members/del/${params}`, {
+    method: 'DELETE',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+//

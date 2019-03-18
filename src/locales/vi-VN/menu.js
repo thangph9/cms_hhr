@@ -45,4 +45,8 @@ export default {
   'menu.question.form': 'Add',
   'menu.question.list': 'List',
   'menu.question': 'Question',
+  'menu.members': 'VOV Member',
+  'menu.members.searchtable': 'Table',
+  'menu.group': 'Group',
+  'menu.group.form': 'Add',
 };
