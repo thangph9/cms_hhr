@@ -90,6 +90,22 @@ export default [
         ],
       },
       {
+        name: 'members',
+        icon: 'team',
+        path: '/members',
+        routes: [
+          {
+            path: '/members',
+            redirect: '/members/basic',
+          },
+          {
+            path: '/members/basic',
+            name: 'searchtable',
+            component: './Members/TableList',
+          },
+        ],
+      },
+      {
         name: 'member',
         icon: 'profile',
         path: '/member',
