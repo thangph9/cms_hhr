@@ -16,10 +16,9 @@ import {
   DatePicker,
   Modal,
   message,
-  Badge,
+  Upload,
   Divider,
   Steps,
-  Radio,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -30,14 +29,23 @@ const FormItem = Form.Item;
 const { Step } = Steps;
 const { TextArea } = Input;
 const { Option } = Select;
-const RadioGroup = Radio.Group;
 const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
     .join(',');
-const statusMap = ['default', 'processing', 'success', 'error'];
-const status = ['关闭', '运行中', '已上线', '异常'];
-
+// const statusMap = ['default', 'processing', 'success', 'error'];
+const status = { HN: 'Hà Nội', HCM: 'tp.HCM' };
+function beforeUploadAudio(file) {
+  const isJPG = file.type === 'audio/mpeg';
+  if (!isJPG) {
+    message.error('You can only upload mp3/waw file!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 10;
+  if (!isLt2M) {
+    message.error('Image must smaller than 10MB!');
+  }
+  return isJPG && isLt2M;
+}
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible } = props;
   const okHandle = () => {
@@ -47,19 +55,97 @@ const CreateForm = Form.create()(props => {
       handleAdd(fieldsValue);
     });
   };
+
+  const prefixSelector = form.getFieldDecorator('prefix', {
+    initialValue: '84',
+  })(
+    <Select style={{ width: 70 }}>
+      <Option value="84">+84</Option>
+    </Select>
+  );
   return (
     <Modal
       destroyOnClose
-      title="新建规则"
+      width={768}
+      title="Thêm mới"
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
     >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
-        {form.getFieldDecorator('desc', {
-          rules: [{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }],
-        })(<Input placeholder="请输入" />)}
-      </FormItem>
+      <Row>
+        <Col md={12}>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Mã số">
+            {form.getFieldDecorator('ucode', {
+              rules: [{ required: true, message: 'Yêu cầu nhập mã số！' }],
+            })(<InputNumber placeholder="Mã số ON" />)}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Họ & Tên">
+            {form.getFieldDecorator('name', {
+              rules: [{ required: true, message: 'Yêu cầu nhập họ tên！', min: 5 }],
+            })(<Input placeholder="Nhập họ tên " />)}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="SĐT ">
+            {form.getFieldDecorator('mobile', {
+              rules: [{ required: true, message: 'Nhập SDT!' }],
+            })(<Input addonBefore={prefixSelector} style={{ width: '100%' }} />)}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Giới tính">
+            {form.getFieldDecorator('gender', {})(
+              <Select style={{ width: '100%' }}>
+                <Option value="MALE">Nam</Option>
+                <Option value="FEMALE">Nữ</Option>
+              </Select>
+            )}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Năm">
+            {form.getFieldDecorator('year')(<Input width="100%" placeholder="" />)}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Công việc">
+            {form.getFieldDecorator('job')(<Input placeholder="" />)}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Địa chỉ">
+            {form.getFieldDecorator('address')(<Input placeholder="" />)}
+          </FormItem>
+        </Col>
+        <Col md={12}>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Thời gian ">
+            {form.getFieldDecorator('timeup')(
+              <DatePicker style={{ width: '100%' }} placeholder="lên sóng" />
+            )}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Khu vực ">
+            {form.getFieldDecorator('location')(
+              <Select placeholder="Khu vực" style={{ width: '100%' }}>
+                <Option value="HN">Hà Nôi</Option>
+                <Option value="HCM">tp.HCM</Option>
+              </Select>
+            )}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Tình trạng">
+            {form.getFieldDecorator('relationship')(
+              <Select placeholder="Lựa chọn" style={{ width: '100%' }}>
+                <Option value="SINGLE">Độc thân</Option>
+                <Option value="DIVORCE">Đã kết hôn</Option>
+              </Select>
+            )}
+          </FormItem>
+          <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Ghi âm">
+            <div className="dropbox">
+              {form.getFieldDecorator('audio', {
+                valuePropName: 'fileList',
+              })(
+                <Upload.Dragger name="files" action="/upload.do" beforeUpload={beforeUploadAudio}>
+                  <p className="ant-upload-drag-icon">
+                    <Icon type="inbox" />
+                  </p>
+                  <p className="ant-upload-text">Upload file ghi âm của thính giả lên sóng</p>
+                  <p className="ant-upload-hint">Hỗ trợ kéo thả file </p>
+                </Upload.Dragger>
+              )}
+            </div>
+          </FormItem>
+        </Col>
+      </Row>
     </Modal>
   );
 });
@@ -78,13 +164,13 @@ class UpdateForm extends PureComponent {
     this.state = {
       formVals: {
         name: props.values.name,
-        desc: props.values.desc,
         key: props.values.key,
         target: '0',
         template: '0',
         type: '1',
         time: '',
         frequency: 'month',
+        ...props.values,
       },
       currentStep: 0,
     };
@@ -134,76 +220,98 @@ class UpdateForm extends PureComponent {
     const { form } = this.props;
     if (currentStep === 1) {
       return [
-        <FormItem key="target" {...this.formLayout} label="监控对象">
-          {form.getFieldDecorator('target', {
-            initialValue: formVals.target,
+        <FormItem key="location" {...this.formLayout} label="Khu vực">
+          {form.getFieldDecorator('location', {
+            initialValue: formVals.location,
           })(
             <Select style={{ width: '100%' }}>
-              <Option value="0">表一</Option>
-              <Option value="1">表二</Option>
+              <Option value="HN">Hà nội</Option>
+              <Option value="HCM">tp.HCM</Option>
             </Select>
           )}
         </FormItem>,
-        <FormItem key="template" {...this.formLayout} label="规则模板">
-          {form.getFieldDecorator('template', {
-            initialValue: formVals.template,
+        <FormItem key="timeup" {...this.formLayout} label="Thời gian">
+          {form.getFieldDecorator('timeup', {
+            rules: [{ required: true, message: 'Chọn thời gian lên sóng！' }],
+            initialValue: moment(formVals.timeup),
           })(
-            <Select style={{ width: '100%' }}>
-              <Option value="0">规则模板一</Option>
-              <Option value="1">规则模板二</Option>
-            </Select>
-          )}
-        </FormItem>,
-        <FormItem key="type" {...this.formLayout} label="规则类型">
-          {form.getFieldDecorator('type', {
-            initialValue: formVals.type,
-          })(
-            <RadioGroup>
-              <Radio value="0">强</Radio>
-              <Radio value="1">弱</Radio>
-            </RadioGroup>
+            <DatePicker
+              style={{ width: '100%' }}
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
+              placeholder="Thời gian"
+            />
           )}
         </FormItem>,
       ];
     }
     if (currentStep === 2) {
       return [
-        <FormItem key="time" {...this.formLayout} label="开始时间">
-          {form.getFieldDecorator('time', {
-            rules: [{ required: true, message: '请选择开始时间！' }],
-          })(
-            <DatePicker
-              style={{ width: '100%' }}
-              showTime
-              format="YYYY-MM-DD HH:mm:ss"
-              placeholder="选择开始时间"
-            />
-          )}
-        </FormItem>,
-        <FormItem key="frequency" {...this.formLayout} label="调度周期">
-          {form.getFieldDecorator('frequency', {
-            initialValue: formVals.frequency,
-          })(
-            <Select style={{ width: '100%' }}>
-              <Option value="month">月</Option>
-              <Option value="week">周</Option>
-            </Select>
-          )}
+        <FormItem key="audio" {...this.formLayout} label="File ghi âm">
+          <div className="dropbox">
+            {form.getFieldDecorator('audio', {
+              valuePropName: 'fileList',
+            })(
+              <Upload.Dragger name="files" action="/upload.do" beforeUpload={beforeUploadAudio}>
+                <p className="ant-upload-drag-icon">
+                  <Icon type="inbox" />
+                </p>
+                <p className="ant-upload-text">Upload file ghi âm của thính giả lên sóng</p>
+                <p className="ant-upload-hint">Hỗ trợ kéo thả file </p>
+              </Upload.Dragger>
+            )}
+          </div>
         </FormItem>,
       ];
     }
     return [
-      <FormItem key="name" {...this.formLayout} label="规则名称">
-        {form.getFieldDecorator('name', {
-          rules: [{ required: true, message: '请输入规则名称！' }],
-          initialValue: formVals.name,
-        })(<Input placeholder="请输入" />)}
+      <FormItem key="ucode" {...this.formLayout} label="Mã số">
+        {form.getFieldDecorator('ucode', {
+          initialValue: formVals.ucode,
+        })(<Input rows={4} placeholder="Nhập mã số" />)}
       </FormItem>,
-      <FormItem key="desc" {...this.formLayout} label="规则描述">
-        {form.getFieldDecorator('desc', {
-          rules: [{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }],
-          initialValue: formVals.desc,
-        })(<TextArea rows={4} placeholder="请输入至少五个字符" />)}
+      <FormItem key="name" {...this.formLayout} label="Họ & Tên">
+        {form.getFieldDecorator('name', {
+          rules: [{ required: true, message: 'Yêu cầu nhập họ tên！' }],
+          initialValue: formVals.name,
+        })(<Input placeholder="Họ & Tên" />)}
+      </FormItem>,
+
+      <FormItem key="mobile" {...this.formLayout} label="SĐT">
+        {form.getFieldDecorator('mobile', {
+          initialValue: formVals.mobile,
+        })(<Input rows={4} placeholder="Nhập số điện thoại" />)}
+      </FormItem>,
+      <FormItem key="year" {...this.formLayout} label="Năm sinh">
+        {form.getFieldDecorator('year', {
+          initialValue: formVals.year,
+        })(<Input />)}
+      </FormItem>,
+      <FormItem key="gender" {...this.formLayout} label="Giới tính">
+        {form.getFieldDecorator('gender', {
+          initialValue: formVals.gender,
+        })(
+          <Select style={{ width: '100%' }}>
+            <Option value="MALE">Nam</Option>
+            <Option value="FEMALE">Nữ</Option>
+          </Select>
+        )}
+      </FormItem>,
+      <FormItem key="relationship" {...this.formLayout} label="Tình trạng">
+        {form.getFieldDecorator('relationship', {
+          initialValue: formVals.relationship,
+        })(
+          <Select style={{ width: '100%' }}>
+            <Option value="SINGLE">Độc thân</Option>
+            <Option value="DIVORCE">Đã kết hôn </Option>
+          </Select>
+        )}
+      </FormItem>,
+
+      <FormItem key="address" {...this.formLayout} label="Địa chỉ">
+        {form.getFieldDecorator('address', {
+          initialValue: formVals.address,
+        })(<TextArea rows={4} placeholder="Nhập địa chỉ" />)}
       </FormItem>,
     ];
   };
@@ -213,35 +321,35 @@ class UpdateForm extends PureComponent {
     if (currentStep === 1) {
       return [
         <Button key="back" style={{ float: 'left' }} onClick={this.backward}>
-          上一步
+          Quay lại
         </Button>,
         <Button key="cancel" onClick={() => handleUpdateModalVisible(false, values)}>
-          取消
+          Huỷ
         </Button>,
         <Button key="forward" type="primary" onClick={() => this.handleNext(currentStep)}>
-          下一步
+          Tiếp tục
         </Button>,
       ];
     }
     if (currentStep === 2) {
       return [
         <Button key="back" style={{ float: 'left' }} onClick={this.backward}>
-          上一步
+          Quay lại
         </Button>,
         <Button key="cancel" onClick={() => handleUpdateModalVisible(false, values)}>
-          取消
+          Huỷ
         </Button>,
         <Button key="submit" type="primary" onClick={() => this.handleNext(currentStep)}>
-          完成
+          Lưu lại
         </Button>,
       ];
     }
     return [
       <Button key="cancel" onClick={() => handleUpdateModalVisible(false, values)}>
-        取消
+        Huỷ
       </Button>,
       <Button key="forward" type="primary" onClick={() => this.handleNext(currentStep)}>
-        下一步
+        Tiếp tục
       </Button>,
     ];
   };
@@ -249,22 +357,21 @@ class UpdateForm extends PureComponent {
   render() {
     const { updateModalVisible, handleUpdateModalVisible, values } = this.props;
     const { currentStep, formVals } = this.state;
-
     return (
       <Modal
         width={640}
         bodyStyle={{ padding: '32px 40px 48px' }}
         destroyOnClose
-        title="规则配置"
+        title="Thay đổi thông tin"
         visible={updateModalVisible}
         footer={this.renderFooter(currentStep)}
         onCancel={() => handleUpdateModalVisible(false, values)}
         afterClose={() => handleUpdateModalVisible()}
       >
         <Steps style={{ marginBottom: 28 }} size="small" current={currentStep}>
-          <Step title="基本信息" />
-          <Step title="配置规则属性" />
-          <Step title="设定调度周期" />
+          <Step title="Cơ bản" />
+          <Step title="Khu vực" />
+          <Step title="Audio" />
         </Steps>
         {this.renderContent(currentStep, formVals)}
       </Modal>
@@ -273,8 +380,9 @@ class UpdateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ rule, loading }) => ({
+@connect(({ rule, loading, members }) => ({
   rule,
+  members,
   loading: loading.models.rule,
 }))
 @Form.create()
@@ -290,60 +398,59 @@ class TableList extends PureComponent {
 
   columns = [
     {
-      title: '规则名称',
+      title: 'Mã số',
+      children: [
+        {
+          title: 'On',
+          dataIndex: 'ucode',
+          key: 'ucode',
+        },
+        {
+          title: 'Off',
+          dataIndex: 'gcode',
+          key: 'gcode',
+        },
+      ],
+    },
+    {
+      title: 'Họ & Tên',
       dataIndex: 'name',
     },
+
     {
-      title: '描述',
-      dataIndex: 'desc',
+      title: 'Số điện thoại',
+      dataIndex: 'mobile',
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
-      sorter: true,
-      align: 'right',
-      render: val => `${val} 万`,
-      // mark to display a total number
-      needTotal: true,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
+      title: 'Khu vực',
+      dataIndex: 'location',
       filters: [
         {
-          text: status[0],
-          value: 0,
+          text: status.HN,
+          value: 'HN',
         },
         {
-          text: status[1],
-          value: 1,
-        },
-        {
-          text: status[2],
-          value: 2,
-        },
-        {
-          text: status[3],
-          value: 3,
+          text: status.HCM,
+          value: 'HCM',
         },
       ],
       render(val) {
-        return <Badge status={statusMap[val]} text={status[val]} />;
+        return <span>{status[val]}</span>;
       },
     },
     {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
+      title: 'Ngày lên sóng',
+      dataIndex: 'timeup',
       sorter: true,
       render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: '操作',
+      title: 'Action',
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(true, record)}>配置</a>
+          <a onClick={() => this.handleUpdateModalVisible(true, record)}>Edit</a>
           <Divider type="vertical" />
-          <a href="">订阅警报</a>
+          <a href="">More</a>
         </Fragment>
       ),
     },
@@ -353,6 +460,9 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'rule/fetch',
+    });
+    dispatch({
+      type: 'members/fetch',
     });
   }
 
@@ -471,13 +581,9 @@ class TableList extends PureComponent {
   handleAdd = fields => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'rule/add',
-      payload: {
-        desc: fields.desc,
-      },
+      type: 'members/add',
+      payload: fields,
     });
-
-    message.success('添加成功');
     this.handleModalVisible();
   };
 
@@ -485,18 +591,13 @@ class TableList extends PureComponent {
     const { dispatch } = this.props;
     const { formValues } = this.state;
     dispatch({
-      type: 'rule/update',
+      type: 'members/update',
       payload: {
-        query: formValues,
-        body: {
-          name: fields.name,
-          desc: fields.desc,
-          key: fields.key,
-        },
+        ...fields,
+        ...formValues,
       },
     });
 
-    message.success('配置成功');
     this.handleUpdateModalVisible();
   };
 
@@ -508,16 +609,18 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+            <FormItem label="Thời gian">
+              {getFieldDecorator('timeup')(
+                <DatePicker style={{ width: '100%' }} placeholder="lên sóng" />
+              )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+            <FormItem label="Khu vực">
+              {getFieldDecorator('location')(
+                <Select placeholder="Khu vực" style={{ width: '100%' }}>
+                  <Option value="HN">Hà Nôi</Option>
+                  <Option value="HCM">tp.HCM</Option>
                 </Select>
               )}
             </FormItem>
@@ -525,13 +628,13 @@ class TableList extends PureComponent {
           <Col md={8} sm={24}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">
-                查询
+                Tìm kiếm
               </Button>
               <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
-                重置
+                Đặt lại
               </Button>
               <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-                展开 <Icon type="down" />
+                Nâng cao <Icon type="down" />
               </a>
             </span>
           </Col>
@@ -548,50 +651,45 @@ class TableList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+            <FormItem label="Mã số">
+              {getFieldDecorator('code')(<Input placeholder="Mã số" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+            <FormItem label="Khu vực">
+              {getFieldDecorator('location')(
+                <Select placeholder="Chọn Khu vực" style={{ width: '100%' }}>
+                  <Option value="HN">Hà Nội</Option>
+                  <Option value="HCM">tp.HCM</Option>
                 </Select>
               )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="调用次数">
-              {getFieldDecorator('number')(<InputNumber style={{ width: '100%' }} />)}
+            <FormItem label="Số điện thoại">
+              {getFieldDecorator('mobile')(<InputNumber style={{ width: '100%' }} />)}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="更新日期">
-              {getFieldDecorator('date')(
-                <DatePicker style={{ width: '100%' }} placeholder="请输入更新日期" />
+            <FormItem label="Thời gian">
+              {getFieldDecorator('timeup')(
+                <DatePicker style={{ width: '100%' }} placeholder="lên sóng" />
               )}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status3')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
+            <FormItem label="Nghê nghiệp">
+              {getFieldDecorator('job')(<Input style={{ width: '100%' }} />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status4')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+            <FormItem label="Tình trạng">
+              {getFieldDecorator('relationship')(
+                <Select placeholder="Lựa chọn" style={{ width: '100%' }}>
+                  <Option value="SINGLE">Độc thân</Option>
+                  <Option value="DIVORCE">Đã kết hôn</Option>
                 </Select>
               )}
             </FormItem>
@@ -600,13 +698,13 @@ class TableList extends PureComponent {
         <div style={{ overflow: 'hidden' }}>
           <div style={{ float: 'right', marginBottom: 24 }}>
             <Button type="primary" htmlType="submit">
-              查询
+              Tìm kiếm
             </Button>
             <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
-              重置
+              Tạo lại
             </Button>
             <a style={{ marginLeft: 8 }} onClick={this.toggleForm}>
-              收起 <Icon type="up" />
+              Cơ bản <Icon type="up" />
             </a>
           </div>
         </div>
@@ -621,7 +719,7 @@ class TableList extends PureComponent {
 
   render() {
     const {
-      rule: { data },
+      members: { table },
       loading,
     } = this.props;
     const { selectedRows, modalVisible, updateModalVisible, stepFormValues } = this.state;
@@ -631,7 +729,6 @@ class TableList extends PureComponent {
         <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
-
     const parentMethods = {
       handleAdd: this.handleAdd,
       handleModalVisible: this.handleModalVisible,
@@ -641,13 +738,13 @@ class TableList extends PureComponent {
       handleUpdate: this.handleUpdate,
     };
     return (
-      <PageHeaderWrapper title="查询表格">
+      <PageHeaderWrapper title="Danh sách">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
               <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
-                新建
+                Thêm mới
               </Button>
               {selectedRows.length > 0 && (
                 <span>
@@ -663,7 +760,7 @@ class TableList extends PureComponent {
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
-              data={data}
+              data={table}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
