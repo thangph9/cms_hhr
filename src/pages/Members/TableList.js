@@ -434,9 +434,8 @@ class TableList extends PureComponent {
           value: 'HCM',
         },
       ],
-      render(val) {
-        return <span>{status[val]}</span>;
-      },
+      onFilter: (value, record) => record.location === value,
+      render: val => <span>{status[val]}</span>,
     },
     {
       title: 'Ngày lên sóng',
@@ -548,9 +547,10 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-
+      console.log(fieldsValue);
       const values = {
         ...fieldsValue,
+        timeup: fieldsValue.timeup.toString(),
         updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
       };
 
@@ -559,7 +559,7 @@ class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'rule/fetch',
+        type: 'members/search',
         payload: values,
       });
     });

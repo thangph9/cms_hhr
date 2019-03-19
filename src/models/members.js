@@ -6,6 +6,7 @@ import {
   fetchMembers,
   fetchMembersBy,
   delMembers,
+  searchMembers,
 } from '@/services/api';
 
 export default {
@@ -55,6 +56,13 @@ export default {
       const response = yield call(fetchMembersBy, payload);
       yield put({
         type: 'getMembersByReducer',
+        payload: response.data || {},
+      });
+    },
+    *search({ payload }, { call, put }) {
+      const response = yield call(searchMembers, payload);
+      yield put({
+        type: 'getMembersReducer',
         payload: response.data || {},
       });
     },

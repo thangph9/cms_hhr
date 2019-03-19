@@ -244,4 +244,10 @@ export async function delMembers(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+export async function searchMembers(params) {
+  return request(`/api/members/search?${stringify(params)}`, {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
 //
