@@ -80,7 +80,7 @@ export default {
     saveMembersReducer(state, action) {
       const { list } = state.table;
       list.map((e, i) => {
-        if (e[i].membersid === action.payload.membersid) {
+        if (e.membersid === action.payload.membersid) {
           list[i] = action.payload;
         }
         return true;

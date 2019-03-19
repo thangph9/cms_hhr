@@ -87,7 +87,7 @@ function update(req, res) {
           PARAM_IS_VALID.month = params.month ? params.month : 0;
           PARAM_IS_VALID.year = params.year ? Number(params.year) : 0;
           PARAM_IS_VALID.audio = params.audio ? params.audio : null;
-          PARAM_IS_VALID.location = params.audio ? params.audio : null;
+          PARAM_IS_VALID.location = params.location ? params.location : null;
           PARAM_IS_VALID.description = params.description ? params.description : {};
           PARAM_IS_VALID.job = params.job ? params.job : null;
           PARAM_IS_VALID.relationship = params.relationship ? params.relationship : null;
@@ -95,6 +95,7 @@ function update(req, res) {
           PARAM_IS_VALID.mobile = params.mobile ? params.mobile : null;
           PARAM_IS_VALID.gender = params.gender ? params.gender : null;
           PARAM_IS_VALID.timeup = params.timeup ? params.timeup : null;
+          PARAM_IS_VALID.gcode = params.gcode ? params.gcode : 0;
         } catch (e) {
           console.log(e);
         }
