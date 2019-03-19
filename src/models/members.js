@@ -14,9 +14,13 @@ export default {
   state: {
     list: [],
     data: {},
+    table: {
+      list: [],
+      pagination: {},
+    },
   },
   effects: {
-    *submitRegularForm({ payload }, { call, put }) {
+    *add({ payload }, { call, put }) {
       const response = yield call(submitMembers, payload);
       if (response.status === 'ok') {
         message.success('Thông tin đã được thêm mới');
@@ -25,10 +29,10 @@ export default {
       }
       yield put({
         type: 'addMembersReducer',
-        payload: response || {},
+        payload: response.data || {},
       });
     },
-    *submitUpdateForm({ payload }, { call, put }) {
+    *update({ payload }, { call, put }) {
       const response = yield call(submitMembersUpdate, payload);
       if (response.status === 'ok') {
         message.success('Thông tin đã được thay đổi');
@@ -37,24 +41,24 @@ export default {
       }
       yield put({
         type: 'saveMembersReducer',
-        payload: response || {},
+        payload: response.data || {},
       });
     },
-    *getMembers(_, { call, put }) {
+    *fetch(_, { call, put }) {
       const response = yield call(fetchMembers);
       yield put({
         type: 'getMembersReducer',
-        payload: response || {},
+        payload: response.data || {},
       });
     },
-    *getMembersBy({ payload }, { call, put }) {
+    *fetchBy({ payload }, { call, put }) {
       const response = yield call(fetchMembersBy, payload);
       yield put({
         type: 'getMembersByReducer',
-        payload: response || {},
+        payload: response.data || {},
       });
     },
-    *delMembersBy({ payload }, { call }) {
+    *del({ payload }, { call }) {
       const response = yield call(delMembers, payload);
       if (response.status === 'ok') {
         message.success('Thành viên đã xoá!');
@@ -66,12 +70,21 @@ export default {
 
   reducers: {
     addMembersReducer(state, action) {
+      const { list } = state.table;
+      list.unshift(action.payload);
       return {
         ...state,
         data: action.payload,
       };
     },
     saveMembersReducer(state, action) {
+      const { list } = state.table;
+      list.map((e, i) => {
+        if (e[i].membersid === action.payload.membersid) {
+          list[i] = action.payload;
+        }
+        return true;
+      });
       return {
         ...state,
         data: action.payload,
@@ -80,13 +93,13 @@ export default {
     getMembersReducer(state, action) {
       return {
         ...state,
-        list: action.payload,
+        table: action.payload,
       };
     },
     getMembersByReducer(state, action) {
       return {
         ...state,
-        list: action.payload,
+        data: action.payload,
       };
     },
   },
