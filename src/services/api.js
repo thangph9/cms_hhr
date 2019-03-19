@@ -250,4 +250,10 @@ export async function searchMembers(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+export async function lazyImages() {
+  return request(`/api/image/lazy`, {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
 //
