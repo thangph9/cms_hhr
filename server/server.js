@@ -63,7 +63,7 @@ if (!module.parent) {
     })
     .listen(80);
   */
-  app.listen(8080, () => {
+  app.listen(8002, () => {
     console.log('server dev running port 8000');
   });
 }
