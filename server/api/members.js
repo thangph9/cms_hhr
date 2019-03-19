@@ -176,6 +176,24 @@ function fetch(req, res) {
     }
   );
 }
+function search(req, res) {
+  let result = [];
+  async.series(
+    [
+      function getMembers(callback) {
+        models.instance.members.find({}, (err, items) => {
+          result = items;
+          callback(err, null);
+        });
+      },
+    ],
+    err => {
+      const pagination = {};
+      if (err) res.send({ status: 'error' });
+      return res.json({ status: 'ok', data: { list: result, pagination } });
+    }
+  );
+}
 function del(req, res) {
   const PARAM_IS_VALID = {};
   const params = req.body;
@@ -211,5 +229,6 @@ router.post('/form/add', add);
 router.put('/form/update', update);
 router.get('/fetch', fetch);
 router.get('/fetch/:membersid', fetchBy);
+router.get('/search', search);
 router.delete('/del/:membersid', del);
 module.exports = router;
