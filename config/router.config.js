@@ -217,6 +217,10 @@ export default [
         ],
       },
       {
+        path: '/image/lazy-image',
+        component: './LazyImage',
+      },
+      {
         component: '404',
       },
     ],
