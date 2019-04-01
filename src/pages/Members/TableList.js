@@ -36,11 +36,12 @@ const getValue = obj =>
 // const statusMap = ['default', 'processing', 'success', 'error'];
 const status = { HN: 'Hà Nội', HCM: 'tp.HCM' };
 function beforeUploadAudio(file) {
-  const isJPG = file.type === 'audio/mpeg';
+  console.log(file.type);
+  const isJPG = file.type === 'audio/mp3';
   if (!isJPG) {
     message.error('You can only upload mp3/waw file!');
   }
-  const isLt2M = file.size / 1024 / 1024 < 10;
+  const isLt2M = file.size / 1024 / 1024 < 100;
   if (!isLt2M) {
     message.error('Image must smaller than 10MB!');
   }
@@ -131,10 +132,8 @@ const CreateForm = Form.create()(props => {
           </FormItem>
           <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Ghi âm">
             <div className="dropbox">
-              {form.getFieldDecorator('audio', {
-                valuePropName: 'fileList',
-              })(
-                <Upload.Dragger name="files" action="/upload.do" beforeUpload={beforeUploadAudio}>
+              {form.getFieldDecorator('audio', {})(
+                <Upload.Dragger name="file" action="/upload/audio" beforeUpload={beforeUploadAudio}>
                   <p className="ant-upload-drag-icon">
                     <Icon type="inbox" />
                   </p>
@@ -249,10 +248,8 @@ class UpdateForm extends PureComponent {
       return [
         <FormItem key="audio" {...this.formLayout} label="File ghi âm">
           <div className="dropbox">
-            {form.getFieldDecorator('audio', {
-              valuePropName: 'fileList',
-            })(
-              <Upload.Dragger name="files" action="/upload.do" beforeUpload={beforeUploadAudio}>
+            {form.getFieldDecorator('audio', {})(
+              <Upload.Dragger name="file" action="/upload/audio" beforeUpload={beforeUploadAudio}>
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
                 </p>

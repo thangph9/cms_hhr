@@ -256,4 +256,12 @@ export async function lazyImages() {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+export async function uploadAudio(params) {
+  const data = new FormData(params);
+  return request(`/upload/audio`, {
+    method: 'POST',
+    body: data,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
 //
