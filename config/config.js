@@ -13,6 +13,7 @@ const plugins = [
       dva: {
         hmr: true,
       },
+
       locale: {
         enable: true, // default false
         default: 'zh-CN', // default zh-CN
@@ -72,13 +73,15 @@ export default {
   externals: {
     '@antv/data-set': 'DataSet',
   },
-  // proxy: {
-  //   '/server/api/': {
-  //     target: 'https://preview.pro.ant.design/',
-  //     changeOrigin: true,
-  //     pathRewrite: { '^/server': '' },
-  //   },
-  // },
+  proxy: {
+    '/upload': {
+      target: 'http://cdn.henhoradio.net/',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/upload': 'upload',
+      },
+    },
+  },
   ignoreMomentLocale: true,
   lessLoaderOptions: {
     javascriptEnabled: true,
