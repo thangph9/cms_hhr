@@ -66,47 +66,50 @@ function fetchMenu(req, res) {
 
       if (err) response = { status: 'error' };
       // console.log(result);
-      const treeMap = [];
-      if (Array.isArray(result[1])) {
-        result[1].forEach((l, j) => {
-          let e = l;
-          const tmp = JSON.stringify(e);
-          e = JSON.parse(tmp);
-          e.parent = 1;
-          e.menuId = e.menuid;
-          if (Array.isArray(result[2])) {
-            const children = result[2].filter(k => k.menuid.toString() === e.menuId.toString());
-            if (children.length > 0) {
-              children.forEach((t, i) => {
-                const temp = JSON.stringify(
-                  result[3].filter(f => t.menuitemid.toString() === f.menuitemid.toString())[0]
-                );
+      else {
+        const treeMap = [];
+        if (Array.isArray(result[1])) {
+          result[1].forEach((l, j) => {
+            let e = l;
+            const tmp = JSON.stringify(e);
+            e = JSON.parse(tmp);
+            e.parent = 1;
+            e.menuId = e.menuid;
+            if (Array.isArray(result[2])) {
+              const children = result[2].filter(k => k.menuid.toString() === e.menuId.toString());
+              if (children.length > 0) {
+                children.forEach((t, i) => {
+                  const temp = JSON.stringify(
+                    result[3].filter(f => t.menuitemid.toString() === f.menuitemid.toString())[0]
+                  );
 
-                const item = JSON.parse(temp);
-                item.menuId = e.menuId;
-                item.menuItemId = t.menuitemid;
-                children[i] = item;
-              });
-              e.children = children;
-            }
+                  const item = JSON.parse(temp);
+                  item.menuId = e.menuId;
+                  item.menuItemId = t.menuitemid;
+                  children[i] = item;
+                });
+                e.children = children;
+              }
 
-            /* result[2].filter((k,i)=>{
-                       if(k.menuid.toString()===e.menuId.toString()){
-                           
-                           const fil=result[3].filter(t=> t.menuitemid.toString()===k.menuitemid.toString());
-                           if(Array.isArray(fil) && fil[0]){
-                               e.children[i]=fil[0];
+              /* result[2].filter((k,i)=>{
+                           if(k.menuid.toString()===e.menuId.toString()){
+
+                               const fil=result[3].filter(t=> t.menuitemid.toString()===k.menuitemid.toString());
+                               if(Array.isArray(fil) && fil[0]){
+                                   e.children[i]=fil[0];
+                               }
+
+                           }else{
+
                            }
-                           
-                       }else{
-                          
-                       }
-                   })
-                   */
-          }
-          treeMap[j] = e;
-        });
-      } else response = { status: 'ok', data: treeMap };
+                       })
+                       */
+            }
+            treeMap[j] = e;
+          });
+        }
+        response = { status: 'ok', data: treeMap };
+      }
       // console.log(err,response);
       res.send(response);
     }

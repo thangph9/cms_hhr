@@ -49,4 +49,6 @@ export default {
   'menu.members.searchtable': 'Table',
   'menu.group': 'Group',
   'menu.group.form': 'Add',
+  'menu.online': 'Website',
+  'menu.settings': 'Settings',
 };
