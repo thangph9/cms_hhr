@@ -239,7 +239,7 @@ export async function fetchMembersBy(params) {
   });
 }
 export async function delMembers(params) {
-  return request(`/api/members/del/${params}`, {
+  return request(`/api/members/del?${params}`, {
     method: 'DELETE',
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
@@ -264,4 +264,61 @@ export async function uploadAudio(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+export async function apiMenuList() {
+  return request(`/api/menu/fetch`, {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function apiMenuAdd(params) {
+  return request(`/api/menu/add`, {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function apiMenuUpdate(params) {
+  return request(`/api/menu/update`, {
+    method: 'PUT',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function apiMenuDelete(params) {
+  return request(`/api/menu/delete/${stringify(params)}`, {
+    method: 'DELETE',
+  });
+}
+//
+export async function apiMenuItemList() {
+  return request(`/api/menu/item/fetch`, {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function apiMenuItemAdd(params) {
+  return request(`/api/menu/item/add`, {
+    method: 'POST',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function apiMenuItemUpdate(params) {
+  return request(`/api/menu/item/update`, {
+    method: 'PUT',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function apiMenuItemDelete(params) {
+  return request(`/api/menu/item/delete?${stringify(params)}`, {
+    method: 'DELETE',
+  });
+}
+export async function apiMenuDeleteItem(params) {
+  return request(`/api/menu/group/delete/item?${stringify(params)}`, {
+    method: 'DELETE',
+  });
+}
+
 //

@@ -3,6 +3,14 @@ import isEqual from 'lodash/isEqual';
 import { formatMessage } from 'umi/locale';
 import Authorized from '@/utils/Authorized';
 import { menu } from '../defaultSettings';
+import { message } from 'antd';
+import {
+  apiMenuList,
+  apiMenuAdd,
+  apiMenuUpdate,
+  apiMenuDelete,
+  apiMenuDeleteItem,
+} from '@/services/api';
 
 const { check } = Authorized;
 
@@ -98,6 +106,10 @@ export default {
   state: {
     menuData: [],
     breadcrumbNameMap: {},
+    table: {
+      list: [],
+      pagination: {},
+    },
   },
 
   effects: {
@@ -110,6 +122,62 @@ export default {
         payload: { menuData, breadcrumbNameMap },
       });
     },
+    *fetch(_, { call, put }) {
+      const response = yield call(apiMenuList);
+      if (response.status === 'ok') {
+        yield put({
+          type: 'fetchReducer',
+          payload: response.data,
+        });
+      } else {
+        message.warn('Không thấy dữ liệu!');
+      }
+    },
+    *add({ payload }, { call, put }) {
+      const response = yield call(apiMenuAdd, payload);
+      if (response.status === 'ok') {
+        message.success('Đã xong !');
+        yield put({
+          type: 'addReducer',
+          payload: response.data,
+        });
+      } else {
+        message.error('Không thêm được! ');
+      }
+    },
+    *update({ payload }, { call, put }) {
+      const response = yield call(apiMenuUpdate, payload);
+      if (response.status === 'ok') {
+        message.success('Thông tin đã được update!');
+        yield put({
+          type: 'updateReducer',
+          payload: response.data,
+        });
+      } else {
+        message.error('Không update được!');
+      }
+    },
+    *del({ payload }, { call }) {
+      const response = yield call(apiMenuDelete, payload);
+      if (response.status === 'ok') {
+        message.success('Đã xoá!');
+      } else {
+        message.error('Không Xoá được! ');
+      }
+    },
+    *delMenuItem({ payload }, { call, put }) {
+      const response = yield call(apiMenuDeleteItem, payload);
+      const res = JSON.parse(response);
+      if (res.status === 'ok') {
+        message.success('Đã xoá!');
+        yield put({
+          type: 'delMenuItemReducer',
+          payload,
+        });
+      } else {
+        message.error('Không Xoá được! ');
+      }
+    },
   },
 
   reducers: {
@@ -117,6 +185,54 @@ export default {
       return {
         ...state,
         ...action.payload,
+      };
+    },
+    fetchReducer(state, action) {
+      return {
+        ...state,
+        table: {
+          list: action.payload,
+          pagination: {},
+        },
+      };
+    },
+    addReducer(state, action) {
+      const { list } = state.table;
+      list.unshift(action.payload);
+      return {
+        ...state,
+      };
+    },
+    updateReducer(state, action) {
+      const { list } = state.table;
+      const { menuId, menuItem } = action.payload;
+      list.forEach(e => {
+        if (e.menuId === menuId) {
+          if (Array.isArray(e.children)) {
+            const { children } = e;
+            children.push({ ...menuItem, menuId: e.menuId });
+            e.children = children;
+          } else {
+            const children = [];
+            children[0] = { ...menuItem, menuId: e.menuId };
+            e.children = children;
+          }
+        }
+      });
+      return {
+        ...state,
+      };
+    },
+    delMenuItemReducer(state, action) {
+      const { list } = state.table;
+      const { menuid, menuitemid } = action.payload;
+      list.forEach(e => {
+        if (menuid === e.menuId.toString()) {
+          e.children = e.children.filter(k => menuitemid !== k.menuItemId.toString());
+        }
+      });
+      return {
+        ...state,
       };
     },
   },
