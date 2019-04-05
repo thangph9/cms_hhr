@@ -9,4 +9,6 @@ router.use('/track', require('./track'));
 router.use('/question', require('./question'));
 router.use('/group', require('./group'));
 router.use('/members', require('./members'));
+router.use('/menu', require('./menu'));
+router.use('/menuItem', require('./menuItem'));
 module.exports = router;
