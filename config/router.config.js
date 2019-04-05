@@ -217,6 +217,37 @@ export default [
         ],
       },
       {
+        path: '/online',
+        name: 'online',
+        icon: 'global',
+        routes: [
+          { path: '/online', redirect: '/online/menu' },
+          {
+            path: '/online/menu',
+            name: 'menu',
+            component: './Website/Menu',
+          },
+          {
+            path: '/online/menu/add',
+            component: './Website/Menu/BasicForm.js',
+          },
+          {
+            path: '/online/menu/list',
+            component: './Website/Menu/TableList.js',
+          },
+          {
+            path: '/online/menu/item/add',
+            component: './Website/Menu/MenuItem.js',
+          },
+        ],
+      },
+      {
+        path: '/settings',
+        name: 'settings',
+        icon: 'setting',
+        component: './Settings',
+      },
+      {
         path: '/image/lazy-image',
         component: './LazyImage',
       },
