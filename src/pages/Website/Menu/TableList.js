@@ -161,7 +161,6 @@ class UpdateItemForm extends PureComponent {
     this.state = {
       formVals: { ...props.values },
     };
-
     this.formLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 13 },
@@ -187,33 +186,18 @@ class UpdateItemForm extends PureComponent {
   };
 
   renderContent = formVals => {
-    const { form } = this.props;
-    const options = [
-      <Option key="member" value="member">
-        Member
-      </Option>,
-      <Option key="user" value="user">
-        User
-      </Option>,
-      <Option key="guest" value="guest">
-        Guest
-      </Option>,
-      <Option key="premium" value="premium">
-        Premium
-      </Option>,
-      <Option key="silver" value="silver">
-        Silver
-      </Option>,
-      <Option key="gold" value="gold">
-        Gold
-      </Option>,
-      <Option key="diamond" value="diamond">
-        Diamond
-      </Option>,
-      <Option key="platium" value="platium">
-        Platium
-      </Option>,
-    ];
+    const { form, rule } = this.props;
+    const {
+      data: { list },
+    } = rule;
+    const options = [];
+    list.forEach((e, i) => {
+      options[i] = (
+        <Option key={e.name} value={e.name}>
+          {e.name}
+        </Option>
+      );
+    });
 
     return [
       <FormItem key="name" {...this.formLayout} label="Tên">
@@ -277,10 +261,11 @@ class UpdateItemForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ loading, menu, menuItem }) => ({
+@connect(({ loading, menu, menuItem, rule }) => ({
   loading: loading.models.menu,
   menu,
   menuItem,
+  rule,
 }))
 @Form.create()
 class TableList extends PureComponent {
@@ -340,6 +325,9 @@ class TableList extends PureComponent {
     });
     dispatch({
       type: 'menuItem/fetch',
+    });
+    dispatch({
+      type: 'rule/fetch',
     });
   }
 
@@ -495,6 +483,7 @@ class TableList extends PureComponent {
       menu: { table },
       loading,
       menuItem,
+      rule,
     } = this.props;
     const {
       selectedRows,
@@ -569,6 +558,7 @@ class TableList extends PureComponent {
         ) : null}
         {stepFormItemValues && Object.keys(stepFormItemValues).length ? (
           <UpdateItemForm
+            rule={rule}
             {...updateItemMethods}
             updateItemModalVisible={updateItemModalVisible}
             values={stepFormItemValues}

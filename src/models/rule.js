@@ -1,7 +1,7 @@
 import { queryRule, removeRule, addRule, updateRule } from '@/services/api';
 
 export default {
-  namespace: 'rules',
+  namespace: 'rule',
 
   state: {
     data: {

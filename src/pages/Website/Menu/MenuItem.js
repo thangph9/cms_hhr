@@ -6,13 +6,21 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-@connect(({ loading, menu, menuItem }) => ({
+@connect(({ loading, menu, menuItem, rule }) => ({
   menu,
   menuItem,
   submitting: loading.effects['form/submitRegularForm'],
+  rule,
 }))
 @Form.create()
 class BasicForms extends PureComponent {
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'rule/fetch',
+    });
+  }
+
   handleSubmit = e => {
     const { dispatch, form } = this.props;
     e.preventDefault();
@@ -27,36 +35,22 @@ class BasicForms extends PureComponent {
   };
 
   render() {
-    const { submitting } = this.props;
+    const { submitting, rule } = this.props;
     const {
       form: { getFieldDecorator },
     } = this.props;
-    const options = [
-      <Option key="member" value="member">
-        Member
-      </Option>,
-      <Option key="user" value="user">
-        User
-      </Option>,
-      <Option key="guest" value="guest">
-        Guest
-      </Option>,
-      <Option key="premium" value="premium">
-        Premium
-      </Option>,
-      <Option key="silver" value="silver">
-        Silver
-      </Option>,
-      <Option key="gold" value="gold">
-        Gold
-      </Option>,
-      <Option key="diamond" value="diamond">
-        Diamond
-      </Option>,
-      <Option key="platium" value="platium">
-        Platium
-      </Option>,
-    ];
+    const {
+      data: { list },
+    } = rule;
+    const options = [];
+    list.forEach((e, i) => {
+      options[i] = (
+        <Option key={e.name} value={e.name}>
+          {e.name}
+        </Option>
+      );
+    });
+
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
