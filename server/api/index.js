@@ -11,4 +11,5 @@ router.use('/group', require('./group'));
 router.use('/members', require('./members'));
 router.use('/menu', require('./menu'));
 router.use('/menuItem', require('./menuItem'));
+router.use('/rule', require('./rule'));
 module.exports = router;
