@@ -16,6 +16,7 @@ function add(req, res) {
         try {
           PARAM_IS_VALID.name = params.name;
           PARAM_IS_VALID.createat = new Date();
+          PARAM_IS_VALID.parent = 1;
         } catch (e) {
           console.log(e);
         }
