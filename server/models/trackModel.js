@@ -5,6 +5,7 @@ module.exports = {
     description: 'text',
     icon: 'text',
     mc: 'text',
+    link: 'text',
     youtube: 'boolean',
     status: 'text',
     title: 'text',
