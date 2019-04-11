@@ -134,8 +134,9 @@ function update(req, res) {
       },
     ],
     err => {
+      console.log(err);
       if (err) res.send({ status: 'error' });
-      res.json({ status: 'ok', data: PARAM_IS_VALID });
+      else res.json({ status: 'ok', data: PARAM_IS_VALID });
     }
   );
 }
