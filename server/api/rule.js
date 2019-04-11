@@ -13,19 +13,19 @@ function add(req, res) {
     [
       function initParams(callback) {
         try {
-          PARAM_IS_VALID.group_id = Uuid.random();
-          PARAM_IS_VALID.title = params.title;
+          PARAM_IS_VALID.name = params.name;
+          PARAM_IS_VALID.description = params.description;
         } catch (e) {
           console.log(e);
         }
         callback(null, null);
       },
-      function addGroup(callback) {
-        const groupObject = {
-          group_id: PARAM_IS_VALID.group_id,
-          title: PARAM_IS_VALID.title,
+      function addRule(callback) {
+        const ruleObject = {
+          name: PARAM_IS_VALID.name,
+          description: PARAM_IS_VALID.description,
         };
-        const instance = new models.instance.group(groupObject); // eslint-disable-line
+        const instance = new models.instance.rule(ruleObject); // eslint-disable-line
         instance.save(err => {
           callback(err);
         });
@@ -33,7 +33,7 @@ function add(req, res) {
     ],
     err => {
       if (err) res.send({ status: 'error' });
-      return res.json({ status: 'ok', data: PARAM_IS_VALID });
+      else res.json({ status: 'ok', data: PARAM_IS_VALID });
     }
   );
 }
@@ -55,7 +55,68 @@ function get(req, res) {
     }
   );
 }
-
+function put(req, res) {
+  const PARAM_IS_VALID = {};
+  const params = req.body;
+  async.series(
+    [
+      function initParams(callback) {
+        try {
+          PARAM_IS_VALID.name = params.name;
+          PARAM_IS_VALID.description = params.description || null;
+        } catch (e) {
+          console.log(e);
+        }
+        callback(null, null);
+      },
+      function addRule(callback) {
+        const ruleObject = {
+          name: PARAM_IS_VALID.name,
+        };
+        const queryObject = { description: PARAM_IS_VALID.description };
+        const options = { if_exists: true };
+        models.instance.rule.update(ruleObject, queryObject, options, err => {
+          callback(err);
+        });
+      },
+    ],
+    err => {
+      console.log(err);
+      if (err) res.send({ status: 'error' });
+      else res.json({ status: 'ok', data: PARAM_IS_VALID });
+    }
+  );
+}
+function remove(req, res) {
+  const PARAM_IS_VALID = {};
+  const params = req.query;
+  async.series(
+    [
+      function initParams(callback) {
+        try {
+          PARAM_IS_VALID.name = params.name;
+        } catch (e) {
+          console.log(e);
+        }
+        callback(null, null);
+      },
+      function removeRule(callback) {
+        const queryObject = {
+          name: PARAM_IS_VALID.name,
+        };
+        models.instance.rule.delete(queryObject, err => {
+          callback(err);
+        });
+      },
+    ],
+    err => {
+      if (err) res.send({ status: 'error' });
+      else res.json({ status: 'ok', data: params });
+    }
+  );
+}
 router.post('/', add);
 router.get('/', get);
+router.put('/', put);
+router.delete('/', remove);
 module.exports = router;
