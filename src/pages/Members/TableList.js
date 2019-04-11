@@ -248,7 +248,9 @@ class UpdateForm extends PureComponent {
       return [
         <FormItem key="audio" {...this.formLayout} label="File ghi âm">
           <div className="dropbox">
-            {form.getFieldDecorator('audio', {})(
+            {form.getFieldDecorator('audio', {
+              initialValue: formVals.audio,
+            })(
               <Upload.Dragger name="file" action="/upload/audio" beforeUpload={beforeUploadAudio}>
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />
