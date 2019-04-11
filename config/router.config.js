@@ -239,6 +239,14 @@ export default [
             path: '/online/menu/item/add',
             component: './Website/Menu/MenuItem.js',
           },
+          {
+            path: '/online/rule/add',
+            component: './Website/Rule/BasicForm.js',
+          },
+          {
+            path: '/online/rule/list',
+            component: './Website/Rule/TableList.js',
+          },
         ],
       },
       {
