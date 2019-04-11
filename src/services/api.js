@@ -11,16 +11,15 @@ export async function queryActivities() {
 }
 
 export async function queryRule(params) {
-  return request(`/api/rule?${stringify(params)}`);
+  return request(`/api/rule?${stringify(params)}`, {
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
 }
 
 export async function removeRule(params) {
-  return request('/api/rule', {
-    method: 'POST',
-    body: {
-      ...params,
-      method: 'delete',
-    },
+  return request(`/api/rule?${stringify(params)}`, {
+    method: 'DELETE',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
 
@@ -29,18 +28,16 @@ export async function addRule(params) {
     method: 'POST',
     body: {
       ...params,
-      method: 'post',
     },
+    headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
 
 export async function updateRule(params = {}) {
-  return request(`/api/rule?${stringify(params.query)}`, {
-    method: 'POST',
-    body: {
-      ...params.body,
-      method: 'update',
-    },
+  return request(`/api/rule`, {
+    method: 'PUT',
+    body: params,
+    headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
 
@@ -313,11 +310,13 @@ export async function apiMenuItemUpdate(params) {
 export async function apiMenuItemDelete(params) {
   return request(`/api/menu/item/delete?${stringify(params)}`, {
     method: 'DELETE',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
 export async function apiMenuDeleteItem(params) {
   return request(`/api/menu/group/delete/item?${stringify(params)}`, {
     method: 'DELETE',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
 
