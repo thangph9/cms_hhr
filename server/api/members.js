@@ -48,7 +48,7 @@ function add(req, res) {
         });
       },
       function addMembers(callback) {
-        let audio = '';
+        let audio = PARAM_IS_VALID.audio; // eslint-disable-line
         if (Array.isArray(PARAM_IS_VALID.audio)) {
           audio = models.uuidFromString(PARAM_IS_VALID.audio.file.response.file.audioid); // eslint-disable-line
         }
@@ -106,8 +106,10 @@ function update(req, res) {
         callback(null, null);
       },
       function addMembers(callback) {
-        let audio = '';
-        if (Array.isArray(PARAM_IS_VALID.audio)) {
+        let audio = PARAM_IS_VALID.audio; // eslint-disable-line
+        console.log(params);
+        if (PARAM_IS_VALID.audio.file) {
+          // eslint-disable-line
           audio = models.uuidFromString(PARAM_IS_VALID.audio.file.response.file.audioid); // eslint-disable-line
         }
         const queryObject = { membersid: PARAM_IS_VALID.membersid };
