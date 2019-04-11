@@ -46,6 +46,7 @@ class BasicForms extends PureComponent {
   };
 
   normFile = e => {
+    console.log(e);
     try {
       this.setState({
         fileID: e.file.response.file.audioid,
