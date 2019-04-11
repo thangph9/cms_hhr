@@ -126,7 +126,8 @@ const CreateForm = Form.create()(props => {
             {form.getFieldDecorator('relationship')(
               <Select placeholder="Lựa chọn" style={{ width: '100%' }}>
                 <Option value="SINGLE">Độc thân</Option>
-                <Option value="DIVORCE">Đã kết hôn</Option>
+                <Option value="DIVORCE">Đã ly hôn</Option>
+                <Option value="SINGLEMON">Mẹ đơn thân</Option>
               </Select>
             )}
           </FormItem>
@@ -354,6 +355,7 @@ class UpdateForm extends PureComponent {
   render() {
     const { updateModalVisible, handleUpdateModalVisible, values } = this.props;
     const { currentStep, formVals } = this.state;
+
     return (
       <Modal
         width={640}
@@ -454,9 +456,6 @@ class TableList extends PureComponent {
 
   componentDidMount() {
     const { dispatch } = this.props;
-    dispatch({
-      type: 'rule/fetch',
-    });
     dispatch({
       type: 'members/fetch',
     });
