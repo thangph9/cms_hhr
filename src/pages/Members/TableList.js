@@ -173,6 +173,7 @@ class UpdateForm extends PureComponent {
         ...props.values,
       },
       currentStep: 0,
+      fileID: '',
     };
 
     this.formLayout = {
@@ -183,13 +184,14 @@ class UpdateForm extends PureComponent {
 
   handleNext = currentStep => {
     const { form, handleUpdate } = this.props;
-    const { formVals: oldValue } = this.state;
+    const { formVals: oldValue, fileID } = this.state;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const formVals = { ...oldValue, ...fieldsValue };
       this.setState(
         {
           formVals,
+          fileID,
         },
         () => {
           if (currentStep < 2) {
@@ -200,6 +202,20 @@ class UpdateForm extends PureComponent {
         }
       );
     });
+  };
+
+  normFile = e => {
+    try {
+      this.setState({
+        fileID: e.file.response.file.audioid,
+      });
+    } catch (ex) {
+      console.log(ex);
+    }
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
   };
 
   backward = () => {
@@ -249,7 +265,9 @@ class UpdateForm extends PureComponent {
       return [
         <FormItem key="audio" {...this.formLayout} label="File ghi âm">
           <div className="dropbox">
-            {form.getFieldDecorator('audio', {})(
+            {form.getFieldDecorator('audio', {
+              getValueFromEvent: this.normFile,
+            })(
               <Upload.Dragger name="file" action="/upload/audio" beforeUpload={beforeUploadAudio}>
                 <p className="ant-upload-drag-icon">
                   <Icon type="inbox" />

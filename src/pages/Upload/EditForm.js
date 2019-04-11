@@ -151,10 +151,9 @@ class BasicForms extends PureComponent {
             </FormItem>
             <Form.Item {...formItemLayout} label="Upload">
               {getFieldDecorator('upload', {
-                valuePropName: 'fileList',
                 getValueFromEvent: this.normFile,
               })(
-                <Upload name="logo" action="/upload/audio" listType="picture">
+                <Upload name="file" action="/upload/audio" listType="picture">
                   <Button>
                     <Icon type="upload" /> Click to upload
                   </Button>
