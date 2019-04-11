@@ -107,8 +107,9 @@ function update(req, res) {
       },
       function addMembers(callback) {
         let audio = '';
+        console.log(PARAM_IS_VALID.audio);
         if (Array.isArray(PARAM_IS_VALID.audio)) {
-          audio = audio = models.uuidFromString(PARAM_IS_VALID.audio[0].response.file.audioid); // eslint-disable-line
+          audio = models.uuidFromString(PARAM_IS_VALID.audio[0].response.file.audioid); // eslint-disable-line
         }
         const queryObject = { membersid: PARAM_IS_VALID.membersid };
         const updateValuesObject = {
