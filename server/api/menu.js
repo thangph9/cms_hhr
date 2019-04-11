@@ -209,6 +209,9 @@ function updateItem(req, res) {
       function updateMenuItem(callback) {
         const menuItemObject = {
           name: PARAM_IS_VALID.name,
+          icon: PARAM_IS_VALID.icon,
+          authority: PARAM_IS_VALID.authority,
+          path: PARAM_IS_VALID.path,
         };
         const queryObject = { menuitemid: PARAM_IS_VALID.menuItemId };
         const options = { if_exists: true };
