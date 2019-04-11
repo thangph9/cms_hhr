@@ -48,7 +48,11 @@ function add(req, res) {
         });
       },
       function addMembers(callback) {
-        const membersObject = PARAM_IS_VALID;
+        let audio = '';
+        if (Array.isArray(PARAM_IS_VALID.audio)) {
+          audio = models.uuidFromString(PARAM_IS_VALID.audio[0].response.file.audioid); // eslint-disable-line
+        }
+        const membersObject = { ...PARAM_IS_VALID, audio };
         const instance = new models.instance.members(membersObject); // eslint-disable-line
         instance.save(err => {
           callback(err);
@@ -102,6 +106,10 @@ function update(req, res) {
         callback(null, null);
       },
       function addMembers(callback) {
+        let audio = '';
+        if (Array.isArray(PARAM_IS_VALID.audio)) {
+          audio = audio = models.uuidFromString(PARAM_IS_VALID.audio[0].response.file.audioid); // eslint-disable-line
+        }
         const queryObject = { membersid: PARAM_IS_VALID.membersid };
         const updateValuesObject = {
           ucode: PARAM_IS_VALID.ucode,
@@ -109,7 +117,7 @@ function update(req, res) {
           year: PARAM_IS_VALID.year,
           day: PARAM_IS_VALID.day,
           month: PARAM_IS_VALID.month,
-          audio: PARAM_IS_VALID.audio,
+          audio,
           location: PARAM_IS_VALID.location,
           description: PARAM_IS_VALID.description,
           job: PARAM_IS_VALID.job,
@@ -225,6 +233,7 @@ function del(req, res) {
     }
   );
 }
+
 router.post('/form/add', add);
 router.put('/form/update', update);
 router.get('/fetch', fetch);
