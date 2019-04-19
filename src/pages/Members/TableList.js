@@ -1,6 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
+import ReactPlayer from 'react-player';
 import {
   Row,
   Col,
@@ -17,7 +18,6 @@ import {
   Modal,
   message,
   Upload,
-  Divider,
   Steps,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
@@ -154,6 +154,7 @@ class UpdateForm extends PureComponent {
   static defaultProps = {
     handleUpdate: () => {},
     handleUpdateModalVisible: () => {},
+
     values: {},
   };
 
@@ -394,6 +395,8 @@ class TableList extends PureComponent {
     selectedRows: [],
     formValues: {},
     stepFormValues: {},
+    playerModalVisible: false,
+    playerSelected: {},
   };
 
   columns = [
@@ -441,15 +444,54 @@ class TableList extends PureComponent {
       title: 'Ngày lên sóng',
       dataIndex: 'timeup',
       sorter: true,
-      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: val => <span>{moment(val).format('YYYY-MM-DD')}</span>,
+    },
+    {
+      title: 'Ghi âm',
+      dataIndex: 'audioRecord',
+      filters: [
+        {
+          text: 'Có',
+          value: 2,
+        },
+        {
+          text: 'Không',
+          value: 1,
+        },
+      ],
+      onFilter: (value, record) => record.audio !== undefined,
+      render: (val, record) => {
+        if (val === 1) {
+          return <div />;
+        }
+        if (val === 1) {
+          return (
+            <Icon
+              type="play-circle"
+              onClick={() => this.handlePlayerModalVisible(true, record)}
+              theme="filled"
+            />
+          );
+        }
+        return <div />;
+      },
     },
     {
       title: 'Action',
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(true, record)}>Edit</a>
-          <Divider type="vertical" />
-          <a href="">More</a>
+          <Dropdown
+            overlay={
+              <Menu onClick={({ key }) => this.editAndDelete(key, record)}>
+                <Menu.Item key="edit">Edit</Menu.Item>
+                <Menu.Item key="delete">Delete</Menu.Item>
+              </Menu>
+            }
+          >
+            <a>
+              Thêm <Icon type="down" />
+            </a>
+          </Dropdown>
         </Fragment>
       ),
     },
@@ -461,6 +503,26 @@ class TableList extends PureComponent {
       type: 'members/fetch',
     });
   }
+
+  handlePlayerModalVisible = (flag, record) => {
+    this.setState({
+      playerModalVisible: !!flag,
+      playerSelected: record,
+    });
+  };
+
+  editAndDelete = (key, currentItem) => {
+    if (key === 'edit') this.handleUpdateModalVisible(true, currentItem);
+    else if (key === 'delete') {
+      Modal.confirm({
+        title: 'Xác nhận xoá',
+        content: 'Bạn chắc chắn muốn xoá？',
+        okText: 'Ok',
+        cancelText: 'Cancel',
+        onOk: () => this.deleteItem(currentItem.membersid),
+      });
+    }
+  };
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
     const { dispatch } = this.props;
@@ -483,7 +545,7 @@ class TableList extends PureComponent {
     }
 
     dispatch({
-      type: 'rule/fetch',
+      type: 'members/fetch',
       payload: params,
     });
   };
@@ -495,7 +557,7 @@ class TableList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'rule/fetch',
+      type: 'members/fetch',
       payload: {},
     });
   };
@@ -544,10 +606,9 @@ class TableList extends PureComponent {
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      console.log(fieldsValue);
       const values = {
         ...fieldsValue,
-        timeup: fieldsValue.timeup.toString(),
+        timeup: fieldsValue.timeup ? fieldsValue.timeup.format('DD-MM-YYYY') : undefined,
         updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
       };
 
@@ -556,7 +617,7 @@ class TableList extends PureComponent {
       });
 
       dispatch({
-        type: 'members/search',
+        type: 'members/fetch',
         payload: values,
       });
     });
@@ -613,16 +674,6 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="Khu vực">
-              {getFieldDecorator('location')(
-                <Select placeholder="Khu vực" style={{ width: '100%' }}>
-                  <Option value="HN">Hà Nôi</Option>
-                  <Option value="HCM">tp.HCM</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
             <span className={styles.submitButtons}>
               <Button type="primary" htmlType="submit">
                 Tìm kiếm
@@ -652,16 +703,7 @@ class TableList extends PureComponent {
               {getFieldDecorator('code')(<Input placeholder="Mã số" />)}
             </FormItem>
           </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="Khu vực">
-              {getFieldDecorator('location')(
-                <Select placeholder="Chọn Khu vực" style={{ width: '100%' }}>
-                  <Option value="HN">Hà Nội</Option>
-                  <Option value="HCM">tp.HCM</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
+
           <Col md={8} sm={24}>
             <FormItem label="Số điện thoại">
               {getFieldDecorator('mobile')(<InputNumber style={{ width: '100%' }} />)}
@@ -677,16 +719,12 @@ class TableList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="Nghê nghiệp">
-              {getFieldDecorator('job')(<Input style={{ width: '100%' }} />)}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
             <FormItem label="Tình trạng">
               {getFieldDecorator('relationship')(
                 <Select placeholder="Lựa chọn" style={{ width: '100%' }}>
                   <Option value="SINGLE">Độc thân</Option>
-                  <Option value="DIVORCE">Đã kết hôn</Option>
+                  <Option value="DIVORCE">Đã ly hôn</Option>
+                  <Option value="SINGLEMON">Mẹ đơn thân</Option>
                 </Select>
               )}
             </FormItem>
@@ -719,7 +757,14 @@ class TableList extends PureComponent {
       members: { table },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, stepFormValues } = this.state;
+    const {
+      selectedRows,
+      modalVisible,
+      updateModalVisible,
+      stepFormValues,
+      playerModalVisible,
+      playerSelected,
+    } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -734,6 +779,15 @@ class TableList extends PureComponent {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
       handleUpdate: this.handleUpdate,
     };
+    const footerPlayerModel = (
+      <Button
+        key="forward"
+        type="primary"
+        onClick={() => this.handlePlayerModalVisible(false, playerSelected)}
+      >
+        Close
+      </Button>
+    );
     return (
       <PageHeaderWrapper title="Danh sách">
         <Card bordered={false}>
@@ -758,6 +812,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               data={table}
+              scroll={{ x: 1300 }}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
@@ -772,6 +827,18 @@ class TableList extends PureComponent {
             values={stepFormValues}
           />
         ) : null}
+        <Modal
+          width={740}
+          bodyStyle={{ padding: '32px 40px 48px' }}
+          destroyOnClose
+          title={playerSelected ? playerSelected.name : null}
+          visible={playerModalVisible}
+          footer={footerPlayerModel}
+          onOk={() => this.handlePlayerModalVisible(false, playerSelected)}
+          afterClose={() => this.handlePlayerModalVisible()}
+        >
+          <ReactPlayer url={playerSelected.source} playing />
+        </Modal>
       </PageHeaderWrapper>
     );
   }

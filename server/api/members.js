@@ -37,36 +37,51 @@ function add(req, res) {
         callback(null, null);
       },
       function getGCode(callback) {
-        models.instance.autoid.find({ autoid }, (err, item) => {
-          if (item && item[0]) {
-            autoidTotal = item.length;
-            PARAM_IS_VALID.gcode = Number(item[0].membersgcode) + 1;
-          } else {
-            PARAM_IS_VALID.gcode = 10000;
+        models.instance.autoid.find(
+          {
+            autoid,
+          },
+          (err, item) => {
+            if (item && item[0]) {
+              autoidTotal = item.length;
+              PARAM_IS_VALID.gcode = Number(item[0].membersgcode) + 1;
+            } else {
+              PARAM_IS_VALID.gcode = 10000;
+            }
+            callback(err, null);
           }
-          callback(err, null);
-        });
+        );
       },
       function addMembers(callback) {
         let audio = ''; // eslint-disable-line
-        if (PARAM_IS_VALID.audio.file) {
+        const membersObject = { ...PARAM_IS_VALID };
+        if (!PARAM_IS_VALID.audio) {
+          audio = null;
+        } else if (PARAM_IS_VALID.audio.file) {
           // eslint-disable-line
           audio = models.uuidFromString(PARAM_IS_VALID.audio.file.response.file.audioid); // eslint-disable-line
         } else {
           audio = models.uuidFromString(PARAM_IS_VALID.audio);
         }
-        const membersObject = { ...PARAM_IS_VALID, audio };
+
+        membersObject.audio = audio;
         const instance = new models.instance.members(membersObject); // eslint-disable-line
         instance.save(err => {
           callback(err);
         });
       },
       function updateGcode(callback) {
-        const queryObject = { autoid };
+        const queryObject = {
+          autoid,
+        };
         const options = {};
-        let updateValuesObject = { membersgcode: models.datatypes.Long.fromInt(1) };
+        let updateValuesObject = {
+          membersgcode: models.datatypes.Long.fromInt(1),
+        };
         if (autoidTotal === 0) {
-          updateValuesObject = { membersgcode: models.datatypes.Long.fromInt(10000) };
+          updateValuesObject = {
+            membersgcode: models.datatypes.Long.fromInt(10000),
+          };
         }
         models.instance.autoid.update(queryObject, updateValuesObject, options, err => {
           callback(err);
@@ -75,11 +90,18 @@ function add(req, res) {
     ],
     err => {
       console.log(err);
-      if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data: PARAM_IS_VALID });
+      if (err)
+        res.send({
+          status: 'error',
+        });
+      res.send({
+        status: 'ok',
+        data: PARAM_IS_VALID,
+      });
     }
   );
 }
+
 function update(req, res) {
   const PARAM_IS_VALID = {};
   const params = req.body;
@@ -110,20 +132,21 @@ function update(req, res) {
       },
       function addMembers(callback) {
         let audio = ''; // eslint-disable-line
-        if (PARAM_IS_VALID.audio.file) {
+        if (PARAM_IS_VALID.audio && PARAM_IS_VALID.audio.file) {
           // eslint-disable-line
           audio = models.uuidFromString(PARAM_IS_VALID.audio.file.response.file.audioid); // eslint-disable-line
         } else {
           audio = models.uuidFromString(PARAM_IS_VALID.audio);
         }
-        const queryObject = { membersid: PARAM_IS_VALID.membersid };
+        const queryObject = {
+          membersid: PARAM_IS_VALID.membersid,
+        };
         const updateValuesObject = {
           ucode: PARAM_IS_VALID.ucode,
           name: PARAM_IS_VALID.name,
           year: PARAM_IS_VALID.year,
           day: PARAM_IS_VALID.day,
           month: PARAM_IS_VALID.month,
-          audio,
           location: PARAM_IS_VALID.location,
           description: PARAM_IS_VALID.description,
           job: PARAM_IS_VALID.job,
@@ -133,7 +156,12 @@ function update(req, res) {
           gender: PARAM_IS_VALID.gender,
           timeup: PARAM_IS_VALID.timeup,
         };
-        const options = { if_exists: true };
+        if (audio !== '') {
+          updateValuesObject.audio = audio;
+        }
+        const options = {
+          if_exists: true,
+        };
         models.instance.members.update(queryObject, updateValuesObject, options, err => {
           callback(err);
         });
@@ -141,11 +169,19 @@ function update(req, res) {
     ],
     err => {
       console.log(err);
-      if (err) res.send({ status: 'error' });
-      else res.json({ status: 'ok', data: PARAM_IS_VALID });
+      if (err)
+        res.send({
+          status: 'error',
+        });
+      else
+        res.json({
+          status: 'ok',
+          data: PARAM_IS_VALID,
+        });
     }
   );
 }
+
 function fetchBy(req, res) {
   const PARAM_IS_VALID = {};
   const { params } = req;
@@ -161,54 +197,105 @@ function fetchBy(req, res) {
         callback(null, null);
       },
       function addGroup(callback) {
-        models.instance.members.find({ membersid: PARAM_IS_VALID.membersid }, (err, items) => {
-          result = items && items.length > 0 ? items[0] : {};
-          callback(err, null);
-        });
+        models.instance.members.find(
+          {
+            membersid: PARAM_IS_VALID.membersid,
+          },
+          (err, items) => {
+            result = items && items.length > 0 ? items[0] : {};
+            callback(err, null);
+          }
+        );
       },
     ],
     err => {
-      if (err) res.send({ status: 'error' });
-      return res.json({ status: 'ok', data: result });
+      if (err)
+        res.send({
+          status: 'error',
+        });
+      return res.json({
+        status: 'ok',
+        data: result,
+      });
     }
   );
 }
+
 function fetch(req, res) {
-  let result = [];
   async.series(
     [
       function getMembers(callback) {
         models.instance.members.find({}, (err, items) => {
-          result = items;
-          callback(err, null);
+          if (Array.isArray(items)) {
+            const reCreate = items.map(e => {
+              if (e.audio) {
+                e.audioRecord = 2;
+              } else {
+                e.audioRecord = 1;
+              }
+              return e;
+            });
+            callback(err, reCreate);
+          } else {
+            callback(err, []);
+          }
         });
       },
     ],
-    err => {
+    (err, results) => {
       const pagination = {};
-      if (err) res.send({ status: 'error' });
-      return res.json({ status: 'ok', data: { list: result, pagination } });
-    }
-  );
-}
-function search(req, res) {
-  let result = [];
-  async.series(
-    [
-      function getMembers(callback) {
-        models.instance.members.find({}, (err, items) => {
-          result = items;
-          callback(err, null);
+      const params = req.query; // eslint-disable-line
+      let dataSource = results[0];
+
+      if (params.sorter) {
+        const s = params.sorter.split('_');
+        dataSource = dataSource.sort((prev, next) => {
+          if (s[1] === 'descend') {
+            return next[s[0]] - prev[s[0]];
+          }
+          return prev[s[0]] - next[s[0]];
         });
-      },
-    ],
-    err => {
-      const pagination = {};
-      if (err) res.send({ status: 'error' });
-      return res.json({ status: 'ok', data: { list: result, pagination } });
+      } else {
+        dataSource = dataSource.sort((prev, next) => prev.timeup - next.timeup);
+      }
+      if (params.location && Array.isArray(params.location)) {
+        const status = params.location.split(',');
+        let filterDataSource = [];
+        status.forEach(s => {
+          filterDataSource = filterDataSource.concat(
+            dataSource.filter(data => parseInt(data.status, 10) === parseInt(s[0], 10))
+          );
+        });
+
+        dataSource = filterDataSource;
+      }
+      if (params.audioRecord && Array.isArray(params.audioRecord)) {
+        const status = params.location.split(',');
+        let filterDataSource = [];
+        status.forEach(s => {
+          filterDataSource = filterDataSource.concat(
+            dataSource.filter(data => parseInt(data.status, 10) === parseInt(s[0], 10))
+          );
+        });
+
+        dataSource = filterDataSource;
+      }
+      if (err)
+        res.send({
+          status: 'error',
+        });
+      else
+        res.json({
+          status: 'ok',
+          data: {
+            list: dataSource,
+            pagination,
+          },
+        });
     }
   );
 }
+
 function del(req, res) {
   const PARAM_IS_VALID = {};
   const params = req.body;
@@ -235,8 +322,14 @@ function del(req, res) {
       },
     ],
     err => {
-      if (err) res.send({ status: 'error' });
-      return res.json({ status: 'ok', data: PARAM_IS_VALID });
+      if (err)
+        res.send({
+          status: 'error',
+        });
+      return res.json({
+        status: 'ok',
+        data: PARAM_IS_VALID,
+      });
     }
   );
 }
@@ -245,6 +338,5 @@ router.post('/form/add', add);
 router.put('/form/update', update);
 router.get('/fetch', fetch);
 router.get('/fetch/:membersid', fetchBy);
-router.get('/search', search);
 router.delete('/del/:membersid', del);
 module.exports = router;

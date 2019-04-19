@@ -45,8 +45,8 @@ export default {
         payload: response.data || {},
       });
     },
-    *fetch(_, { call, put }) {
-      const response = yield call(fetchMembers);
+    *fetch({ payload }, { call, put }) {
+      const response = yield call(fetchMembers, payload);
       yield put({
         type: 'getMembersReducer',
         payload: response.data || {},

@@ -223,8 +223,8 @@ export async function submitMembersUpdate(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
-export async function fetchMembers() {
-  return request('/api/members/fetch', {
+export async function fetchMembers(params) {
+  return request(`/api/members/fetch?${stringify(params)}`, {
     method: 'GET',
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
