@@ -227,11 +227,21 @@ function fetch(req, res) {
       function getMembers(callback) {
         models.instance.members.find({}, (err, items) => {
           if (Array.isArray(items)) {
-            const reCreate = items.map(e => {
+            const reCreate = items.map(i => {
+              const e = JSON.parse(JSON.stringify(i));
               if (e.audio) {
                 e.audioRecord = 2;
               } else {
                 e.audioRecord = 1;
+              }
+              if (e.relationship === 'SINGLE') {
+                e.relationshipOption = 1;
+              }
+              if (e.relationship === 'DIVORCE') {
+                e.relationshipOption = 2;
+              }
+              if (e.relationship === 'SINGLEMON') {
+                e.relationshipOption = 3;
               }
               return e;
             });
@@ -258,27 +268,50 @@ function fetch(req, res) {
       } else {
         dataSource = dataSource.sort((prev, next) => prev.timeup - next.timeup);
       }
-      if (params.location && Array.isArray(params.location)) {
+      if (params.location) {
         const status = params.location.split(',');
         let filterDataSource = [];
         status.forEach(s => {
           filterDataSource = filterDataSource.concat(
-            dataSource.filter(data => parseInt(data.status, 10) === parseInt(s[0], 10))
+            dataSource.filter(data => data.location === s[0])
           );
         });
 
         dataSource = filterDataSource;
       }
-      if (params.audioRecord && Array.isArray(params.audioRecord)) {
-        const status = params.location.split(',');
+      if (params.audioRecord) {
+        const status = params.audioRecord.split(',');
         let filterDataSource = [];
         status.forEach(s => {
           filterDataSource = filterDataSource.concat(
-            dataSource.filter(data => parseInt(data.status, 10) === parseInt(s[0], 10))
+            dataSource.filter(data => parseInt(data.audioRecord, 10) === parseInt(s[0], 10))
           );
         });
 
         dataSource = filterDataSource;
+      }
+      if (params.relationshipOption) {
+        const status = params.relationshipOption.split(',');
+
+        let filterDataSource = [];
+        status.forEach(s => {
+          filterDataSource = filterDataSource.concat(
+            dataSource.filter(data => parseInt(data.relationshipOption, 10) === parseInt(s[0], 10))
+          );
+        });
+        dataSource = filterDataSource;
+      }
+      if (params.unicode) {
+        try {
+          const code = parseInt(params.unicode, 10);
+          if (code > 1000) {
+            dataSource = dataSource.filter(e => e.ucode === code);
+          } else {
+            dataSource = dataSource.filter(e => e.gcode === code);
+          }
+        } catch (e) {
+          console.log(e);
+        }
       }
       if (err)
         res.send({

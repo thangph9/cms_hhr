@@ -35,8 +35,8 @@ const getValue = obj =>
     .join(',');
 // const statusMap = ['default', 'processing', 'success', 'error'];
 const status = { HN: 'Hà Nội', HCM: 'tp.HCM' };
+const relationshipOption = ['Độc thân', 'Đã ly hôn', 'Mẹ đơn thân'];
 function beforeUploadAudio(file) {
-  console.log(file.type);
   const isJPG = file.type === 'audio/mp3';
   if (!isJPG) {
     message.error('You can only upload mp3/waw file!');
@@ -304,6 +304,7 @@ class UpdateForm extends PureComponent {
           <Select style={{ width: '100%' }}>
             <Option value="SINGLE">Độc thân</Option>
             <Option value="DIVORCE">Đã kết hôn </Option>
+            <Option value="SINGLEMON">Mẹ đơn thân</Option>
           </Select>
         )}
       </FormItem>,
@@ -459,7 +460,7 @@ class TableList extends PureComponent {
           value: 1,
         },
       ],
-      onFilter: (value, record) => record.audio !== undefined,
+      onFilter: (value, record) => record.audioRecord === parseInt(value, 10),
       render: (val, record) => {
         if (val === 1) {
           return <div />;
@@ -475,6 +476,26 @@ class TableList extends PureComponent {
         }
         return <div />;
       },
+    },
+    {
+      title: 'Tình trạng',
+      dataIndex: 'relationshipOption',
+      filters: [
+        {
+          text: 'Độc thân',
+          value: 1,
+        },
+        {
+          text: 'Đã ly hôn',
+          value: 2,
+        },
+        {
+          text: 'Mẹ đơn thân',
+          value: 3,
+        },
+      ],
+      onFilter: (value, record) => record.relationshipOption === parseInt(value, 10),
+      render: val => <span>{relationshipOption[val]}</span>,
     },
     {
       title: 'Action',
@@ -666,6 +687,11 @@ class TableList extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
+          <Col md={8} sm={24}>
+            <FormItem label="Mã số">
+              {getFieldDecorator('unicode')(<Input style={{ width: '100%' }} placeholder=" " />)}
+            </FormItem>
+          </Col>
           <Col md={8} sm={24}>
             <FormItem label="Thời gian">
               {getFieldDecorator('timeup')(
