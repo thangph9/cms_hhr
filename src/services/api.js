@@ -141,8 +141,18 @@ export async function getFakeCaptcha(mobile) {
 export async function fetchTrackByID(trackID) {
   return request(`/api/track/get/${trackID}`);
 }
-export async function fetchTrack() {
-  return request(`/api/track/list`);
+export async function fetchTrack(params) {
+  console.log(params, 'API CALLING');
+  return request(`/api/track/fetch?${stringify(params)}`, {
+    method: 'GET',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+export async function delTrack(params) {
+  return request(`/api/track/fetch?${stringify(params)}`, {
+    method: 'DELETE',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
 }
 
 export async function submitTrackAdd(params) {
@@ -236,7 +246,7 @@ export async function fetchMembersBy(params) {
   });
 }
 export async function delMembers(params) {
-  return request(`/api/members/del?${params}`, {
+  return request(`/api/members/del?${stringify(params)}`, {
     method: 'DELETE',
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });

@@ -20,31 +20,31 @@ export default [
       // dashboard
       { path: '/', redirect: '/member' },
       {
-        name: 'upload',
+        name: 'track',
         icon: 'form',
-        path: '/upload',
+        path: '/track',
         routes: [
           {
-            path: '/upload',
-            redirect: '/upload/track',
+            path: '/track',
+            redirect: '/track/list',
           },
           {
-            path: '/upload/track',
+            path: '/track/form',
             name: 'track',
-            component: './Upload/BasicForm',
+            component: './Track/BasicForm',
           },
           {
-            path: '/upload/list',
+            path: '/track/list',
             name: 'list',
-            component: './Upload/CardList',
+            component: './Track/TableList',
           },
           {
-            path: '/upload/edit/:track_id',
-            component: './Upload/EditForm',
+            path: '/track/edit/:track_id',
+            component: './Track/EditForm',
           },
           {
-            path: '/upload/detail/:track_id',
-            component: './Upload/EditForm',
+            path: '/track/detail/:track_id',
+            component: './Track/EditForm',
           },
         ],
       },
@@ -221,7 +221,7 @@ export default [
         name: 'online',
         icon: 'global',
         routes: [
-          { path: '/online', redirect: '/online/menu' },
+          { path: '/online', redirect: '/online/menu/list' },
           {
             path: '/online/menu',
             name: 'menu',

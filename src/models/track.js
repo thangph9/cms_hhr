@@ -1,6 +1,12 @@
 // import { routerRedux } from 'dva/router';
 import { message } from 'antd';
-import { submitTrackAdd, fetchTrackByID, submitTrackUpdate, fetchTrack } from '@/services/api';
+import {
+  submitTrackAdd,
+  fetchTrackByID,
+  submitTrackUpdate,
+  fetchTrack,
+  delTrack,
+} from '@/services/api';
 
 export default {
   namespace: 'track',
@@ -13,18 +19,24 @@ export default {
       amount: '500',
     },
     track: {},
-    list: [],
+    table: {},
   },
   effects: {
-    *submitRegularForm({ payload }, { call }) {
+    *save({ payload }, { call, put }) {
       const response = yield call(submitTrackAdd, payload);
       if (response.status === 'ok') {
         message.success('Thông tin đã được thêm mới');
+        yield put({
+          type: 'saveAdd',
+          payload: {
+            add: true,
+          },
+        });
       } else {
         message.error('Không thể thêm thông tin');
       }
     },
-    *submitUpdate({ payload }, { call }) {
+    *update({ payload }, { call }) {
       const response = yield call(submitTrackUpdate, payload);
       if (response.status === 'ok') {
         message.success('Thông tin đã được thay đổi');
@@ -32,7 +44,7 @@ export default {
         message.error('Không thể sửa đổi thông tin!');
       }
     },
-    *fetchTrackByID({ payload }, { call, put }) {
+    *fetchByID({ payload }, { call, put }) {
       const response = yield call(fetchTrackByID, payload);
       let track = {};
       if (response.status === 'ok') {
@@ -47,6 +59,7 @@ export default {
     },
     *fetch({ payload }, { call, put }) {
       const response = yield call(fetchTrack, payload);
+
       let track = [];
       if (response.status === 'ok') {
         track = response.data;
@@ -57,6 +70,14 @@ export default {
         type: 'fetchReducer',
         payload: track,
       });
+    },
+    *remove({ payload }, { call }) {
+      const response = yield call(delTrack, payload);
+      if (response.status === 'ok') {
+        message.success('Thành viên đã xoá!');
+      } else {
+        message.error('Không thể thêm thông tin');
+      }
     },
   },
 
@@ -70,6 +91,12 @@ export default {
         },
       };
     },
+    saveAdd(state, { payload }) {
+      return {
+        ...state,
+        add: payload.add,
+      };
+    },
     fetchTrackByIDReducer(state, { payload }) {
       return {
         ...state,
@@ -79,7 +106,7 @@ export default {
     fetchReducer(state, { payload }) {
       return {
         ...state,
-        list: payload,
+        table: payload,
       };
     },
   },
