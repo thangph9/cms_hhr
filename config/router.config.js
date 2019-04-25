@@ -223,17 +223,13 @@ export default [
         routes: [
           { path: '/online', redirect: '/online/menu/list' },
           {
-            path: '/online/menu',
+            path: '/online/menu/list',
             name: 'menu',
-            component: './Website/Menu',
+            component: './Website/Menu/TableList.js',
           },
           {
             path: '/online/menu/add',
             component: './Website/Menu/BasicForm.js',
-          },
-          {
-            path: '/online/menu/list',
-            component: './Website/Menu/TableList.js',
           },
           {
             path: '/online/menu/item/add',
