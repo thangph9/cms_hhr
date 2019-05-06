@@ -1,5 +1,7 @@
 const async = require('async'); // eslint-disable-line
 const express = require('express'); // eslint-disable-line
+const moment = require('moment'); // eslint-disable-line
+
 const models = require('../settings');
 
 const Uuid = models.datatypes.Uuid; // eslint-disable-line
@@ -305,14 +307,28 @@ function fetch(req, res) {
         try {
           const code = parseInt(params.unicode, 10);
           if (code > 1000) {
-            dataSource = dataSource.filter(e => e.ucode === code);
-          } else {
             dataSource = dataSource.filter(e => e.gcode === code);
+          } else {
+            dataSource = dataSource.filter(e => e.ucode === code);
           }
         } catch (e) {
           console.log(e);
         }
       }
+      if (params.timeup) {
+        try {
+          dataSource = dataSource.filter(e => {
+            const timeup = moment(e.timeup)
+              .format('DD-MM-YYYY')
+              .toString();
+            const timeFilter = params.timeup;
+            return timeup === timeFilter;
+          });
+        } catch (e) {
+          console.log(e);
+        }
+      }
+
       if (err)
         res.send({
           status: 'error',
