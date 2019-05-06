@@ -136,7 +136,7 @@ const CreateForm = Form.create()(props => {
             })(<Input />)}
           </FormItem>
           <FormItem {...formItemLayout} label="Nhóm">
-            {getFieldDecorator('group', {
+            {getFieldDecorator('group_id', {
               rules: [
                 {
                   required: true,
@@ -577,9 +577,6 @@ class TableList extends PureComponent {
       type: 'question/remove',
       payload: params,
     });
-    dispatch({
-      type: 'question/fetch',
-    });
   };
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -699,10 +696,13 @@ class TableList extends PureComponent {
   };
 
   handleAdd = fields => {
-    const { dispatch } = this.props;
+    const { dispatch, group } = this.props;
     dispatch({
       type: 'question/save',
-      payload: fields,
+      payload: {
+        data: { ...fields, action: 'add' },
+        group: group.table,
+      },
     });
     this.setState({
       question: {
@@ -714,15 +714,20 @@ class TableList extends PureComponent {
   };
 
   handleUpdate = fields => {
-    const { dispatch } = this.props;
+    const { dispatch, group } = this.props;
     const { formValues } = this.state;
     dispatch({
       type: 'question/save',
       payload: {
-        ...fields,
-        ...formValues,
+        data: {
+          ...fields,
+          ...formValues,
+          action: 'update',
+        },
+        group: group.table,
       },
     });
+
     this.setState({
       question: {
         listAnswer: [],
