@@ -171,48 +171,41 @@ export async function submitTrackUpdate(params) {
 }
 // Group Table
 export async function submitGroup(params) {
-  return request('/api/group/form/add', {
+  return request('/api/group/form/save', {
     method: 'POST',
     body: params,
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
-export async function getGroup(params) {
-  return request('/api/group/form/get', {
-    method: 'POST',
-    body: params,
+export async function fetchGroup(params) {
+  return request(`/api/group/fetch?${stringify(params)}`, {
+    method: 'GET',
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+export async function removeGroup(params) {
+  return request(`/api/group/remove/${params.group_id}`, {
+    method: 'DELETE',
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
+
 // Question Table
 export async function submitQuestion(params) {
-  return request('/api/question/form/add', {
+  return request('/api/question/form/save', {
     method: 'POST',
     body: params,
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
-export async function submitQuestionUpdate(params) {
-  return request('/api/question/form/update', {
-    method: 'PUT',
-    body: params,
-    headers: { 'X-Access-Token': getAuthority()[0].token },
-  });
-}
-export async function fetchQuestion() {
-  return request('/api/question/fetch', {
+export async function fetchQuestion(params) {
+  return request(`/api/question/fetch?${stringify(params)}`, {
     method: 'GET',
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
-export async function fetchQuestionBy(params) {
-  return request(`/api/question/fetch/${params}`, {
-    method: 'GET',
-    headers: { 'X-Access-Token': getAuthority()[0].token },
-  });
-}
-export async function delQuestion(params) {
-  return request(`/api/question/del/${params}`, {
+export async function removeQuestion(params) {
+  return request(`/api/question/remove/${params.question_id}`, {
     method: 'DELETE',
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });

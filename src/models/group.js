@@ -1,47 +1,67 @@
 // import { routerRedux } from 'dva/router';
 import { message } from 'antd';
-import { submitGroup, getGroup } from '@/services/api';
+import { submitGroup, fetchGroup, removeGroup } from '@/services/api';
 
 export default {
   namespace: 'group',
 
   state: {
-    group: {},
-    getgroup: {},
+    table: {
+      list: [],
+      pagination: {},
+    },
+    data: {},
   },
   effects: {
-    *submitRegularForm({ payload }, { call, put }) {
-      const response = yield call(submitGroup, payload);
-      if (response.status === 'ok') {
-        message.success('Thông tin đã được thêm mới');
-      } else {
-        message.error('Không thể thêm thông tin');
-      }
+    *fetch({ payload }, { call, put }) {
+      const response = yield call(fetchGroup, payload);
       yield put({
-        type: 'addGroup',
+        type: 'fetchReducer',
         payload: response || {},
       });
     },
-    *getgroup({ payload }, { call, put }) {
-      const response = yield call(getGroup, payload);
+    *remove({ payload }, { call }) {
+      const response = yield call(removeGroup, payload);
+      const res = JSON.parse(response);
+      if (res.status === 'ok') {
+        message.success(`Thông tin đã được xoá!`);
+      } else {
+        message.error(`Không thể xoá thông tin!`);
+      }
+    },
+    *save({ payload }, { call, put }) {
+      const response = yield call(submitGroup, payload);
+      const msg = payload.type === 'add' ? 'thêm mới ' : 'update';
+      if (response.status === 'ok') {
+        message.success(`Thông tin đã được ${msg}!`);
+      } else {
+        message.error(`Không thể {msg} thông tin!`);
+      }
       yield put({
-        type: 'getGroup',
-        payload: response || {},
+        type: 'saveReducer',
+        payload: { ...response, type: payload.type },
       });
     },
   },
 
   reducers: {
-    addGroup(state, action) {
+    fetchReducer(state, action) {
+      const { data } = action.payload;
       return {
         ...state,
-        group: action.payload,
+        table: data,
       };
     },
-    getGroup(state, action) {
+    saveReducer(state, action) {
+      console.log(action.payload);
       return {
         ...state,
-        getgroup: action.payload,
+      };
+    },
+    removeReducer(state, action) {
+      console.log(action.payload);
+      return {
+        ...state,
       };
     },
   },
