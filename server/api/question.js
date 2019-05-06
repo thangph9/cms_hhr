@@ -6,125 +6,94 @@ const Uuid = models.datatypes.Uuid; // eslint-disable-line
 
 const router = express.Router();
 
-function add(req, res) {
+function save(req, res) {
   const PARAM_IS_VALID = {};
   const params = req.body;
   async.series(
     [
       function initParams(callback) {
         try {
-          PARAM_IS_VALID.question_id = Uuid.random();
+          if (params.action === 'add') {
+            PARAM_IS_VALID.question_id = Uuid.random();
+          } else {
+            PARAM_IS_VALID.question_id = models.uuidFromString(params.question_id);
+          }
+          PARAM_IS_VALID.group_id = models.uuidFromString(params.group_id);
           PARAM_IS_VALID.title = params.title;
           PARAM_IS_VALID.type = params.options;
-          PARAM_IS_VALID.group_id = params.group;
-          PARAM_IS_VALID.answer = params.answer || [];
-        } catch (e) {
-          console.log(e);
-        }
-        callback(null, null);
-      },
-      function addQuestion(callback) {
-        const questionObject = {
-          question_id: PARAM_IS_VALID.question_id,
-          title: PARAM_IS_VALID.title,
-          type: PARAM_IS_VALID.type,
-          answer: PARAM_IS_VALID.answer,
-          group_id: models.uuidFromString(PARAM_IS_VALID.group_id),
-        };
-        const instance = new models.instance.question(questionObject); // eslint-disable-line
-        instance.save(err => {
-          callback(err);
-        });
-      },
-    ],
-    err => {
-      if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data: PARAM_IS_VALID });
-    }
-  );
-}
-function update(req, res) {
-  const PARAM_IS_VALID = {};
-  const params = req.body;
-  async.series(
-    [
-      function initParams(callback) {
-        try {
-          PARAM_IS_VALID.question_id = models.uuidFromString(params.question_id);
-          PARAM_IS_VALID.title = params.title;
-          PARAM_IS_VALID.type = params.options;
-          PARAM_IS_VALID.answer = params.answer || [];
+          PARAM_IS_VALID.answer = params.listAnswer || [];
         } catch (e) {
           console.log(e);
         }
         callback(null, null);
       },
       function updateQuestion(callback) {
-        const questionObject = {
+        console.log(PARAM_IS_VALID);
+        const object = {
           title: PARAM_IS_VALID.title,
+          group_id: PARAM_IS_VALID.group_id,
           type: PARAM_IS_VALID.type,
           answer: PARAM_IS_VALID.answer,
         };
-        const queryObject = { question_id: PARAM_IS_VALID.question_id };
-        const options = { if_exists: true };
-        models.instance.question(queryObject, questionObject, options, err => {
-          callback(err);
-        });
+        if (params.action === 'add') {
+          object.question_id = PARAM_IS_VALID.question_id;
+          const instance = new models.instance.question(object); // eslint-disable-line
+          instance.save(err => {
+            callback(err);
+          });
+        } else {
+          const queryObject = { question_id: PARAM_IS_VALID.question_id };
+          const options = { if_exists: true };
+          models.instance.question.update(queryObject, object, options, err => {
+            callback(err);
+          });
+        }
       },
     ],
     err => {
       if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data: PARAM_IS_VALID });
+      else res.send({ status: 'ok', data: PARAM_IS_VALID });
     }
   );
 }
 function fetch(req, res) {
-  let data = [];
   async.series(
     [
+      function fetchGroup(callback) {
+        const { group } = models.instance;
+        group.find({}, (err, items) => {
+          const itm = items || [];
+          callback(err, itm);
+        });
+      },
       function fetchQuestion(callback) {
         const { question } = models.instance;
-        question.find({}, (err, item) => {
-          data = item;
-          callback(err);
+        question.find({}, (err, items) => {
+          callback(err, items);
         });
       },
     ],
-    err => {
+    (err, results) => {
+      const list = [];
+      if (Array.isArray(results[1])) {
+        const rs = results[1];
+        rs.forEach((e, i) => {
+          const ne = JSON.parse(JSON.stringify(e));
+          const l = results[0].filter(k => k.group_id.equals(e.group_id));
+          ne.group = l[0] ? l[0].title : null;
+          list[i] = ne;
+        });
+      }
+      const data = {
+        list,
+        pagination: {},
+      };
       if (err) res.send({ status: 'error' });
       res.send({ status: 'ok', data });
     }
   );
 }
-function fetchBy(req, res) {
-  const PARAM_IS_VALID = {};
-  const { params } = req;
-  let data = {};
-  async.series(
-    [
-      function initParams(callback) {
-        try {
-          PARAM_IS_VALID.question_id = models.uuidFromString(params.question_id);
-        } catch (e) {
-          console.log(e);
-        }
-        callback(null, null);
-      },
-      function fetchQuestion(callback) {
-        const { question } = models.instance;
-        question.find({ question_id: PARAM_IS_VALID.question_id }, (err, item) => {
-          data = item[0] || {};
-          callback(err);
-        });
-      },
-    ],
-    err => {
-      if (err) res.send({ status: 'error' });
-      res.send({ status: 'ok', data });
-    }
-  );
-}
-function del(req, res) {
+function remove(req, res) {
   const PARAM_IS_VALID = {};
   const { params } = req;
   async.series(
@@ -150,9 +119,8 @@ function del(req, res) {
     }
   );
 }
-router.post('/form/add', add);
-router.put('/form/update', update);
+
+router.post('/form/save', save);
 router.get('/fetch', fetch);
-router.get('/fetch/:question_id', fetchBy);
-router.delete('/del/:question_id', del);
+router.delete('/remove/:group_id', remove);
 module.exports = router;
