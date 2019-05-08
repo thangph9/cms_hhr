@@ -8,6 +8,7 @@ const router = express.Router();
 
 function save(req, res) {
   console.log(req.headers);
+  console.log(req.body);
   const data = {
     status: '0',
     request_id: '10000',
