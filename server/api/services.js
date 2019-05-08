@@ -48,7 +48,7 @@ function service(req, res) {
         if (Array.isArray(msg)) {
           msg = msg.filter(str => /\S/.test(str));
           serviceRegister.name = msg[0]; // eslint-disable-line
-          serviceRegister.gender = msg[1]; // eslint-disable-line
+          serviceRegister.gender = msg[msg.length - 1]; // eslint-disable-line
         }
         const instance = new models.instance.serviceRegister(serviceRegister); // eslint-disable-line
         instance.save(err => {
