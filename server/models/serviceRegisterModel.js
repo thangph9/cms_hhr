@@ -9,6 +9,10 @@ module.exports = {
     message: 'text',
     user_id: 'text',
     service_id: 'text',
+    name: 'text',
+    gender: 'text',
+    action: 'text',
+    description: 'text',
     year: {
       type: 'int',
       default: parseInt(new Date().getFullYear()), // eslint-disable-line
@@ -29,6 +33,10 @@ module.exports = {
         'user_id',
         'service_id',
         'id',
+        'name',
+        'gender',
+        'action',
+        'description',
         'created',
         'year',
       ],

@@ -33,6 +33,10 @@ function service(req, res) {
         callback(null, null);
       },
       function saveServiceRegister(callback) {
+        const { message } = PARAM_IS_VALID;
+        const p = message.substring(0, 2);
+        let msg = p.split(' ');
+
         const serviceRegister = {
           id: PARAM_IS_VALID.id,
           command_code: PARAM_IS_VALID.command_code,
@@ -41,6 +45,11 @@ function service(req, res) {
           message: PARAM_IS_VALID.message,
           request_id: PARAM_IS_VALID.request_id,
         };
+        if (Array.isArray(msg)) {
+          msg = msg.filter(str => /\S/.test(str));
+          serviceRegister.name = msg[0]; // eslint-disable-line
+          serviceRegister.gender = msg[1]; // eslint-disable-line
+        }
         const instance = new models.instance.serviceRegister(serviceRegister); // eslint-disable-line
         instance.save(err => {
           callback(err);
