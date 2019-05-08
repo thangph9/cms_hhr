@@ -2,7 +2,7 @@ const async = require('async'); // eslint-disable-line
 const express = require('express'); // eslint-disable-line
 // const models = require('../settings');
 
-const Uuid = models.datatypes.Uuid; // eslint-disable-line
+// const Uuid = models.datatypes.Uuid; // eslint-disable-line
 
 const router = express.Router();
 
