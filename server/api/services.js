@@ -34,7 +34,7 @@ function service(req, res) {
       },
       function saveServiceRegister(callback) {
         const { message } = PARAM_IS_VALID;
-        const p = message.substring(0, 2);
+        const p = message.substring(2);
         let msg = p.split(' ');
 
         const serviceRegister = {
