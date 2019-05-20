@@ -1,6 +1,18 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Card, Form, Input, Select, Icon, Button, Dropdown, Menu, Modal, Divider } from 'antd';
+import {
+  Card,
+  Form,
+  Input,
+  Select,
+  Icon,
+  Button,
+  Dropdown,
+  Menu,
+  Modal,
+  Divider,
+  InputNumber,
+} from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
@@ -34,7 +46,7 @@ const CreateForm = Form.create()(props => {
     >
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="Tên">
         {form.getFieldDecorator('name', {
-          rules: [{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }],
+          rules: [{ required: true, message: 'Yêu cầu nhập tên lớn hơn 5 ký tự！', min: 5 }],
         })(<Input />)}
       </FormItem>
     </Modal>
@@ -51,7 +63,6 @@ class UpdateForm extends PureComponent {
 
   constructor(props) {
     super(props);
-    console.log(props.values);
     this.state = {
       formVals: { ...props.values },
     };
@@ -111,6 +122,11 @@ class UpdateForm extends PureComponent {
         {form.getFieldDecorator('menuItemId', {
           initialValue: list[0].menuItemId,
         })(<Select style={{ width: '100%' }}>{options}</Select>)}
+      </FormItem>,
+      <FormItem key="orderby" {...this.formLayout} label="Vị trí ">
+        {form.getFieldDecorator('orderby', {
+          initialValue: formVals.orderby,
+        })(<InputNumber />)}
       </FormItem>,
     ];
   };
@@ -210,6 +226,11 @@ class UpdateItemForm extends PureComponent {
           initialValue: formVals.path,
         })(<Input />)}
       </FormItem>,
+      <FormItem key="orderby" {...this.formLayout} label="Vị trí">
+        {form.getFieldDecorator('orderby', {
+          initialValue: formVals.orderby,
+        })(<Input />)}
+      </FormItem>,
       <FormItem key="icon" {...this.formLayout} label="Icon">
         {form.getFieldDecorator('icon', {
           initialValue: formVals.icon,
@@ -290,6 +311,11 @@ class TableList extends PureComponent {
       dataIndex: 'path',
     },
     {
+      title: 'Vị trí',
+      dataIndex: 'orderby',
+    },
+
+    {
       title: 'Icon',
       dataIndex: 'icon',
       align: 'right',
@@ -341,7 +367,7 @@ class TableList extends PureComponent {
       cancelText: 'No',
       onOk() {
         dispatch({
-          type: 'menu/delMenuItem',
+          type: 'menu/removeMenuItem',
           payload: {
             menuid: record.menuId,
             menuitemid: record.menuItemId,
@@ -472,7 +498,7 @@ class TableList extends PureComponent {
   handleUpdateItem = fields => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'menuItem/update',
+      type: 'menu/updateItem',
       payload: fields,
     });
     this.handleUpdateItemModalVisible();

@@ -10,6 +10,7 @@ import {
   apiMenuUpdate,
   apiMenuDelete,
   apiMenuDeleteItem,
+  apiMenuItemUpdate,
 } from '@/services/api';
 
 const { check } = Authorized;
@@ -157,7 +158,20 @@ export default {
         message.error('Không update được!');
       }
     },
-    *del({ payload }, { call }) {
+    *updateItem({ payload }, { call, put }) {
+      const response = yield call(apiMenuItemUpdate, payload);
+      if (response.status === 'ok') {
+        message.success('Thông tin đã được update!');
+        yield put({
+          type: 'updateItemReducer',
+          payload: response.data,
+        });
+      } else {
+        message.error('Không update được!');
+      }
+    },
+
+    *remove({ payload }, { call }) {
       const response = yield call(apiMenuDelete, payload);
       if (response.status === 'ok') {
         message.success('Đã xoá!');
@@ -165,13 +179,13 @@ export default {
         message.error('Không Xoá được! ');
       }
     },
-    *delMenuItem({ payload }, { call, put }) {
+    *removeMenuItem({ payload }, { call, put }) {
       const response = yield call(apiMenuDeleteItem, payload);
       const res = JSON.parse(response);
       if (res.status === 'ok') {
         message.success('Đã xoá!');
         yield put({
-          type: 'delMenuItemReducer',
+          type: 'removeMenuItemReducer',
           payload,
         });
       } else {
@@ -198,32 +212,77 @@ export default {
     },
     addReducer(state, action) {
       const { list } = state.table;
-      list.unshift(action.payload);
+      const { payload } = action;
+      const newMenu = {
+        parent: 1,
+        name: payload.name,
+        menuId: payload.menuId.toString(),
+        key: payload.menuId,
+      };
+
+      list.unshift(newMenu);
       return {
         ...state,
       };
     },
     updateReducer(state, action) {
-      const { list } = state.table;
-      const { menuId, menuItem } = action.payload;
-      list.forEach(e => {
+      const { list, pagination } = state.table;
+      const { menuId, menuItem, orderby } = action.payload;
+      menuItem.orderby = orderby;
+      const newList = [];
+
+      list.forEach((e, i) => {
+        let newChild = [];
         if (e.menuId === menuId) {
-          if (Array.isArray(e.children)) {
-            const { children } = e;
-            children.push({ ...menuItem, menuId: e.menuId });
-            e.children = children;
+          const { children } = e;
+          if (Array.isArray(children)) {
+            menuItem.key = menuId.concat(children.length + 1);
+            newChild = children;
+            menuItem.menuId = menuId;
+            newChild.push(menuItem);
           } else {
-            const children = [];
-            children[0] = { ...menuItem, menuId: e.menuId };
-            e.children = children;
+            menuItem.key = menuId.concat(Math.random());
+            menuItem.menuId = menuId;
+            newChild.push(menuItem);
           }
+        } else {
+          newChild = e.children;
+        }
+        newList[i] = { ...e, children: newChild };
+      });
+      return {
+        ...state,
+        table: { list: newList, pagination },
+      };
+    },
+    updateItemReducer(state, action) {
+      const { list, pagination } = state.table;
+      const { payload } = action;
+      list.forEach(e => {
+        if (e.menuId === payload.menuId) {
+          const { children } = e;
+
+          if (Array.isArray(children)) {
+            const child = [];
+            children.forEach((k, j) => {
+              if (k.menuItemId === payload.menuItemId) {
+                child[j] = payload;
+              } else {
+                child[j] = k;
+              }
+            });
+
+            e.children = child;
+          }
+          // console.log(e.menuId, payload.menuId,e.children);
         }
       });
       return {
         ...state,
+        table: { list, pagination },
       };
     },
-    delMenuItemReducer(state, action) {
+    removeMenuItemReducer(state, action) {
       const { list } = state.table;
       const { menuid, menuitemid } = action.payload;
       list.forEach(e => {
