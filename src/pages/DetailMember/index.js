@@ -123,14 +123,12 @@ class Center extends PureComponent {
                   <div className={styles.detail}>
                     <p>
                       <i className={styles.title} />
-                      Công việc: {dataMember.jobs.jobs ? dataMember.jobs.jobs : 'Chưa hoàn thiện'}
+                      Công việc: {dataMember.jobs ? dataMember.jobs.jobs : 'Chưa hoàn thiện'}
                     </p>
                     <p>
                       <i className={styles.group} />
                       Trình độ:{' '}
-                      {dataMember.education.education
-                        ? dataMember.education.education
-                        : 'Chưa hoàn thiện'}
+                      {dataMember.education ? dataMember.education.education : 'Chưa hoàn thiện'}
                     </p>
                     <p>
                       <i className={styles.address} />
