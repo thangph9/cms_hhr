@@ -322,5 +322,38 @@ export async function apiMenuDeleteItem(params) {
     headers: { 'X-Access-Token': getAuthority()[0].token },
   });
 }
+//--------------------------------------
 
+export async function getAllUser() {
+  return request(`/api/members/getalluser`, {
+    method: 'GET',
+  });
+}
+export async function deleteUser(params) {
+  return request(`/api/members/delete/${params}`, {
+    method: 'GET',
+  });
+}
+export async function changePublic(params) {
+  return request(`/api/members/changepublic/${params.user_id}/${params.status}`, {
+    method: 'GET',
+  });
+}
+export async function getMemberById(params) {
+  return request(`/api/members/getmemberbyid/${params}`, {
+    method: 'GET',
+  });
+}
+export async function updateProfileQuestion(params) {
+  return request(`/api/members/updateprofilequestion`, {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function updateProfileUser(params) {
+  return request('/api/members/updateprofileuser', {
+    method: 'POST',
+    body: params,
+  });
+}
 //

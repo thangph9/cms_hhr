@@ -111,6 +111,29 @@ export default [
         path: '/member',
         routes: [
           {
+            path: '/member/list',
+            name: 'Thành viên',
+            component: './UserMember/ListMember',
+          },
+          {
+            path: '/member/detail',
+            component: './DetailMember',
+            routes: [
+              {
+                path: '/member/detail',
+                redirect: '/member/detail/question',
+              },
+              {
+                path: '/member/detail/question',
+                component: './DetailMember/Question',
+              },
+              {
+                path: '/member/detail/changeinfo',
+                component: './DetailMember/ChangeInfo',
+              },
+            ],
+          },
+          {
             path: '/member',
             redirect: '/member/basic',
           },
