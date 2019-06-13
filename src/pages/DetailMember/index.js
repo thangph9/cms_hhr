@@ -16,26 +16,6 @@ class Center extends PureComponent {
     loadingPage: true,
   };
 
-  componentDidMount() {
-    const { dispatch, location } = this.props;
-    dispatch({
-      type: 'user/fetchCurrent',
-    });
-    dispatch({
-      type: 'list/fetch',
-      payload: {
-        count: 8,
-      },
-    });
-    dispatch({
-      type: 'project/fetchNotice',
-    });
-    dispatch({
-      type: 'members/getmemberbyid',
-      payload: location.query.id,
-    });
-  }
-
   componentWillReceiveProps(nextProps) {
     const { getmemberbyid } = this.props;
 
@@ -56,6 +36,9 @@ class Center extends PureComponent {
         break;
       case 'changeinfo':
         router.push(`${match.url}/changeinfo?id=${id}`);
+        break;
+      case 'changepass':
+        router.push(`${match.url}/changepass?id=${id}`);
         break;
       default:
         break;
@@ -95,6 +78,10 @@ class Center extends PureComponent {
       {
         key: 'changeinfo',
         tab: <span>Thay đổi thông tin</span>,
+      },
+      {
+        key: 'changepass',
+        tab: <span>Cài đặt bảo mật</span>,
       },
     ];
 

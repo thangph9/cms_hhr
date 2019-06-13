@@ -13,6 +13,9 @@ import {
   getMemberById,
   updateProfileUser,
   updateProfileQuestion,
+  changePass,
+  updatePhone,
+  updateEmail,
 } from '@/services/api';
 
 export default {
@@ -25,7 +28,10 @@ export default {
       list: [],
       pagination: {},
     },
+    changepass: {},
     getalluser: [],
+    updatephone: {},
+    updateemail: {},
     getmemberbyid: {},
     updateprofileuser: {},
     updateprofilequestion: {},
@@ -111,6 +117,43 @@ export default {
         message.success('Thay đổi thông tin thành công !');
       } else {
         message.error('Có lỗi xảy ra !');
+      }
+    },
+    *changepass({ payload }, { call, put }) {
+      const response = yield call(changePass, payload);
+      if (response && response.status === 'ok') {
+        message.success('Thay đổi mật khẩu thành công !');
+        yield put({
+          type: 'changePass',
+        });
+      } else if (response && response.status === 'error0') {
+        message.error('Mật khẩu cũ không chính xác !');
+      } else {
+        message.error('Có lỗi xảy ra !');
+      }
+    },
+    *updatephone({ payload }, { call, put }) {
+      const response = yield call(updatePhone, payload);
+      if (response && response.status === 'ok') {
+        message.success('Thay đổi dữ liệu thành công !');
+        yield put({
+          type: 'updatePhone',
+          payload,
+        });
+      } else {
+        message.error('Thao tác không thành công');
+      }
+    },
+    *updateemail({ payload }, { call, put }) {
+      const response = yield call(updateEmail, payload);
+      if (response && response.status === 'ok') {
+        message.success('Thay đổi thành công !');
+        yield put({
+          type: 'updateEmail',
+          payload,
+        });
+      } else {
+        message.error('Thay đổi không thành công !');
       }
     },
     *update({ payload }, { call, put }) {
@@ -203,6 +246,30 @@ export default {
       return {
         ...state,
         getalluser: newState,
+      };
+    },
+    changePass(state) {
+      return {
+        ...state,
+      };
+    },
+    updatePhone(state, action) {
+      const oldProps = state.getmemberbyid;
+      oldProps.result.phones = { '1': action.payload.phone };
+      const a = JSON.stringify(oldProps);
+      return {
+        ...state,
+        getmemberbyid: JSON.parse(a),
+      };
+    },
+    updateEmail(state, action) {
+      const oldProps = state.getmemberbyid;
+      oldProps.result.email = action.payload.email;
+      const a = JSON.stringify(oldProps);
+
+      return {
+        ...state,
+        getmemberbyid: JSON.parse(a),
       };
     },
     changePublic(state, action) {

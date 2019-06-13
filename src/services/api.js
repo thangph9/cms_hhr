@@ -356,4 +356,22 @@ export async function updateProfileUser(params) {
     body: params,
   });
 }
+export async function changePass(params) {
+  return request('/api/members/changepass', {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function updatePhone(params) {
+  return request('/api/members/updatephone', {
+    method: 'POST',
+    body: params,
+  });
+}
+export async function updateEmail(params) {
+  return request('/api/members/updateemail', {
+    method: 'POST',
+    body: params,
+  });
+}
 //

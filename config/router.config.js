@@ -131,6 +131,10 @@ export default [
                 path: '/member/detail/changeinfo',
                 component: './DetailMember/ChangeInfo',
               },
+              {
+                path: '/member/detail/changepass',
+                component: './DetailMember/ChangePass',
+              },
             ],
           },
           {
