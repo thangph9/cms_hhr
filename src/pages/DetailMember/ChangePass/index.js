@@ -376,23 +376,6 @@ class ChangePass extends Component {
               {
                 <div className={styles['form-pass']}>
                   <Form onSubmit={this.handleSubmit} className="login-form">
-                    <Form.Item>
-                      {getFieldDecorator('password', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Nhập mật khẩu',
-                          },
-                        ],
-                      })(
-                        <Input
-                          size="large"
-                          type="password"
-                          autoComplete="password"
-                          placeholder="Mật khẩu hiện tại"
-                        />
-                      )}
-                    </Form.Item>
                     <Form.Item help={help} validateStatus={valiPass} hasFeedback>
                       <Popover
                         content={

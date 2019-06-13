@@ -1,8 +1,11 @@
+/* eslint-disable consistent-return */
+/* eslint-disable func-names */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 const async = require('async'); // eslint-disable-line
 const express = require('express'); // eslint-disable-line
 const moment = require('moment'); // eslint-disable-line
-
+const bcrypt = require('bcryptjs');
 const models = require('../settings');
 
 const Uuid = models.datatypes.Uuid; // eslint-disable-line
@@ -739,6 +742,166 @@ function updateProfileUser(req, res) {
     }
   );
 }
+function changePass(req, res) {
+  const params = req.body;
+  const PARAM_IS_VALID = {};
+  let _salt = '';
+  let _hash = '';
+  const saltRounds = 10;
+  const queries = [];
+  let phone = '';
+  async.series(
+    [
+      function(callback) {
+        PARAM_IS_VALID.password = params.password;
+        PARAM_IS_VALID.newpassword = params.newpassword;
+        callback(null, null);
+      },
+      function(callback) {
+        models.instance.users.find(
+          { user_id: models.uuidFromString(params.user_id) },
+          (err, _user) => {
+            if (_user !== undefined && _user.length > 0) {
+              // eslint-disable-next-line prefer-destructuring
+              phone = _user[0].phone;
+            }
+            callback(err, null);
+          }
+        );
+      },
+      function(callback) {
+        bcrypt.genSalt(saltRounds, (err, salt) => {
+          _salt = salt;
+          callback(err, null);
+        });
+      },
+      function(callback) {
+        bcrypt.hash(params.newpassword, _salt, (err, hash) => {
+          _hash = hash;
+          callback(err, null);
+        });
+      },
+      // eslint-disable-next-line func-names
+      function(callback) {
+        try {
+          const update_password_object = {
+            password: _hash,
+            password_salt: _salt,
+          };
+          const update_password = () => {
+            const object = update_password_object;
+            // eslint-disable-next-line no-shadow
+            const update = models.instance.login.update(
+              { phone, user_id: models.uuidFromString(params.user_id) },
+              object,
+              { if_exist: true, return_query: true }
+            );
+            return update;
+          };
+          queries.push(update_password());
+          callback(null, null);
+        } catch (error) {
+          callback(error, null);
+        }
+      },
+    ],
+    // eslint-disable-next-line consistent-return
+    err => {
+      if (err) {
+        console.log(err);
+        return res.json({ status: 'error1' });
+      }
+      // eslint-disable-next-line no-shadow
+      models.doBatch(queries, err => {
+        if (err) {
+          console.log(err);
+          return res.json({ status: 'error2' });
+        }
+        return res.json({
+          status: 'ok',
+          message: 'Thay đổi mật khẩu thành công',
+          timeline: new Date().getTime(),
+        });
+      });
+    }
+  );
+}
+function updatePhone(req, res) {
+  const params = req.body;
+  const PARAM_IS_VALID = {};
+  async.series(
+    [
+      callback => {
+        PARAM_IS_VALID.phone = { '1': params.phone };
+        callback(null, null);
+      },
+      callback => {
+        try {
+          const update_object = {
+            phones: PARAM_IS_VALID.phone,
+          };
+          const object = update_object;
+          models.instance.users.update(
+            { user_id: models.uuidFromString(params.user_id) },
+            object,
+            { if_exist: true },
+            err => {
+              if (err) {
+                console.log(err);
+                return res.json({ status: 'error' });
+              }
+              callback(null, null);
+            }
+          );
+        } catch (error) {
+          callback(error, null);
+        }
+      },
+    ],
+    err => {
+      if (err) return res.json({ status: 'error' });
+      return res.json({ status: 'ok', timeline: new Date().getTime() });
+    }
+  );
+}
+function updateEmail(req, res) {
+  const params = req.body;
+  const PARAM_IS_VALID = {};
+  async.series(
+    [
+      callback => {
+        PARAM_IS_VALID.email = params.email;
+        callback(null, null);
+      },
+      callback => {
+        try {
+          const update_object = {
+            email: PARAM_IS_VALID.email,
+          };
+          const object = update_object;
+          models.instance.users.update(
+            { user_id: models.uuidFromString(params.user_id) },
+            object,
+            { if_exist: true },
+            err => {
+              if (err) {
+                console.log(err);
+                return res.json({ status: 'error' });
+              }
+              callback(null, null);
+            }
+          );
+        } catch (error) {
+          callback(error, null);
+        }
+      },
+    ],
+    err => {
+      if (err) return res.json({ status: 'error' });
+      return res.json({ status: 'ok', timeline: new Date().getTime() });
+    }
+  );
+}
 router.post('/form/add', add);
 router.put('/form/update', update);
 router.get('/fetch', fetch);
@@ -749,5 +912,8 @@ router.get('/changepublic/:user_id/:status', changePublic);
 router.delete('/del/:membersid', del);
 router.get('/getmemberbyid/:id', getMemberById);
 router.post('/updateprofileuser', updateProfileUser);
+router.post('/changepass', changePass);
+router.post('/updateemail', updateEmail);
+router.post('/updatephone', updatePhone);
 router.post('/updateprofilequestion', updateProfileQuestion);
 module.exports = router;
