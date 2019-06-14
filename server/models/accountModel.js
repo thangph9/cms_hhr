@@ -37,7 +37,6 @@ module.exports = {
       clustering_order: { created: 'desc' },
       filters: {
         created: { $gte: new Date('2019-01-01') },
-        age: { $isnt: null },
       },
     },
   },
