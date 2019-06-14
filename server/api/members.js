@@ -442,7 +442,7 @@ function deleteUser(req, res) {
       callback => {
         try {
           // eslint-disable-next-line consistent-return
-          models.instance.users.find({}, (err, _user) => {
+          models.instance.users.find({ user_id: models.uuidFromString(user_id) }, (err, _user) => {
             if (_user && _user.length > 0) {
               // eslint-disable-next-line prefer-destructuring
               phone = _user[0].phone;
