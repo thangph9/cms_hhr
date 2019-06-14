@@ -7,6 +7,15 @@ import {
   fetchMembersBy,
   delMembers,
   searchMembers,
+  getAllUser,
+  deleteUser,
+  changePublic,
+  getMemberById,
+  updateProfileUser,
+  updateProfileQuestion,
+  changePass,
+  updatePhone,
+  updateEmail,
 } from '@/services/api';
 
 export default {
@@ -19,6 +28,13 @@ export default {
       list: [],
       pagination: {},
     },
+    changepass: {},
+    getalluser: [],
+    updatephone: {},
+    updateemail: {},
+    getmemberbyid: {},
+    updateprofileuser: {},
+    updateprofilequestion: {},
   },
   effects: {
     *add({ payload }, { call, put }) {
@@ -32,6 +48,113 @@ export default {
         type: 'addMembersReducer',
         payload: response.data || {},
       });
+    },
+    *getalluser({ payload }, { call, put }) {
+      const response = yield call(getAllUser, payload);
+      if (response.status === 'ok') {
+        yield put({
+          type: 'getAllUser',
+          payload: response.data,
+        });
+      } else {
+        message.error('Không tìm thấy dữ liệu');
+      }
+    },
+    *deleteuser({ payload }, { call, put }) {
+      const response = yield call(deleteUser, payload);
+      if (response.status === 'ok') {
+        message.success('Đã xóa!');
+        yield put({
+          type: 'deleteUser',
+          payload,
+        });
+      } else {
+        message.error('Xóa không thành công');
+      }
+    },
+    *changepublic({ payload }, { call, put }) {
+      const response = yield call(changePublic, payload);
+      if (response.status === 'ok') {
+        message.success('Đã chỉnh sửa!');
+        yield put({
+          type: 'changePublic',
+          payload,
+        });
+      } else {
+        message.error('Thay đổi không thành công');
+      }
+    },
+    *getmemberbyid({ payload }, { call, put }) {
+      const response = yield call(getMemberById, payload);
+      if (response.status === 'ok') {
+        yield put({
+          type: 'getMemberById',
+          payload: response.data,
+        });
+      } else {
+        message.error('Không tìm thấy tài khoản này');
+      }
+    },
+    *updateprofilequestion({ payload }, { call, put }) {
+      const response = yield call(updateProfileQuestion, payload);
+      if (response && response.status === 'ok') {
+        message.success('Thay đổi dữ liệu thành công !');
+        yield put({
+          type: 'updateProfileQuestion',
+          payload,
+        });
+      } else {
+        message.error('Thay đổi thất bại !');
+      }
+    },
+    *updateprofileuser({ payload }, { call, put }) {
+      const response = yield call(updateProfileUser, payload);
+      if (response && response.status === 'ok') {
+        yield put({
+          type: 'updateProfileUser',
+          payload,
+        });
+        message.success('Thay đổi thông tin thành công !');
+      } else {
+        message.error('Có lỗi xảy ra !');
+      }
+    },
+    *changepass({ payload }, { call, put }) {
+      const response = yield call(changePass, payload);
+      if (response && response.status === 'ok') {
+        message.success('Thay đổi mật khẩu thành công !');
+        yield put({
+          type: 'changePass',
+        });
+      } else if (response && response.status === 'error0') {
+        message.error('Mật khẩu cũ không chính xác !');
+      } else {
+        message.error('Có lỗi xảy ra !');
+      }
+    },
+    *updatephone({ payload }, { call, put }) {
+      const response = yield call(updatePhone, payload);
+      if (response && response.status === 'ok') {
+        message.success('Thay đổi dữ liệu thành công !');
+        yield put({
+          type: 'updatePhone',
+          payload,
+        });
+      } else {
+        message.error('Thao tác không thành công');
+      }
+    },
+    *updateemail({ payload }, { call, put }) {
+      const response = yield call(updateEmail, payload);
+      if (response && response.status === 'ok') {
+        message.success('Thay đổi thành công !');
+        yield put({
+          type: 'updateEmail',
+          payload,
+        });
+      } else {
+        message.error('Thay đổi không thành công !');
+      }
     },
     *update({ payload }, { call, put }) {
       const response = yield call(submitMembersUpdate, payload);
@@ -83,6 +206,106 @@ export default {
       return {
         ...state,
         data: action.payload,
+      };
+    },
+    getAllUser(state, action) {
+      return {
+        ...state,
+        getalluser: action.payload,
+      };
+    },
+    updateProfileQuestion(state, action) {
+      const newgetuser = state.getmemberbyid;
+      if (newgetuser.question) {
+        const i = newgetuser.question.findIndex(
+          element => element.question_id === action.payload.question_id
+        );
+        if (i === -1) {
+          newgetuser.question.push({
+            question_id: action.payload.question_id,
+            answer: action.payload.answer,
+          });
+        } else {
+          newgetuser.question[i] = {
+            question_id: action.payload.question_id,
+            answer: action.payload.answer,
+          };
+        }
+      }
+      const a = JSON.stringify(newgetuser);
+      return {
+        ...state,
+        getmemberbyid: JSON.parse(a),
+      };
+    },
+    deleteUser(state, action) {
+      const oldState = state.getalluser;
+      const a = JSON.stringify(oldState);
+      const b = JSON.parse(a);
+      const newState = b.filter(ele => ele.user_id !== action.payload);
+      return {
+        ...state,
+        getalluser: newState,
+      };
+    },
+    changePass(state) {
+      return {
+        ...state,
+      };
+    },
+    updatePhone(state, action) {
+      const oldProps = state.getmemberbyid;
+      oldProps.result.phones = { '1': action.payload.phone };
+      const a = JSON.stringify(oldProps);
+      return {
+        ...state,
+        getmemberbyid: JSON.parse(a),
+      };
+    },
+    updateEmail(state, action) {
+      const oldProps = state.getmemberbyid;
+      oldProps.result.email = action.payload.email;
+      const a = JSON.stringify(oldProps);
+
+      return {
+        ...state,
+        getmemberbyid: JSON.parse(a),
+      };
+    },
+    changePublic(state, action) {
+      const oldState = state.getalluser;
+      const a = JSON.stringify(oldState);
+      const b = JSON.parse(a);
+      const itemFind = b.findIndex(ele => ele.user_id === action.payload.user_id);
+      b[itemFind].status = action.payload.status;
+      return {
+        ...state,
+        getalluser: b,
+      };
+    },
+    getMemberById(state, action) {
+      return {
+        ...state,
+        getmemberbyid: action.payload,
+      };
+    },
+    updateProfileUser(state, action) {
+      const oldProps = state.getmemberbyid;
+      oldProps.result.address = action.payload.address;
+      oldProps.result.gender = action.payload.gender;
+      oldProps.result.dob_day = action.payload.dateinfo;
+      oldProps.result.dob_month = action.payload.monthinfo;
+      oldProps.result.dob_year = action.payload.yearinfo;
+      oldProps.result.fullname = action.payload.fullname;
+      oldProps.result.height = action.payload.height;
+      oldProps.result.weight = action.payload.weight;
+      oldProps.result.education = { education: action.payload.education };
+      oldProps.result.jobs = { jobs: action.payload.jobs };
+      oldProps.result.avatar = action.payload.avatar;
+      const newProps = JSON.stringify(oldProps);
+      return {
+        ...state,
+        getmemberbyid: JSON.parse(newProps),
       };
     },
     saveMembersReducer(state, action) {

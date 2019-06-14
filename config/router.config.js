@@ -14,8 +14,8 @@ export default [
   {
     path: '/',
     component: '../layouts/BasicLayout',
-    Routes: ['src/pages/Authorized'],
-    authority: ['admin', 'user'],
+    // Routes: ['src/pages/Authorized'],
+    // authority: ['admin', 'user'],
     routes: [
       // dashboard
       { path: '/', redirect: '/member' },
@@ -110,6 +110,33 @@ export default [
         icon: 'profile',
         path: '/member',
         routes: [
+          {
+            path: '/member/list',
+            name: 'Thành viên',
+            component: './UserMember/ListMember',
+          },
+          {
+            path: '/member/detail',
+            component: './DetailMember',
+            routes: [
+              {
+                path: '/member/detail',
+                redirect: '/member/detail/question',
+              },
+              {
+                path: '/member/detail/question',
+                component: './DetailMember/Question',
+              },
+              {
+                path: '/member/detail/changeinfo',
+                component: './DetailMember/ChangeInfo',
+              },
+              {
+                path: '/member/detail/changepass',
+                component: './DetailMember/ChangePass',
+              },
+            ],
+          },
           {
             path: '/member',
             redirect: '/member/basic',

@@ -2,42 +2,43 @@ module.exports = {
   fields: {
     user_id: 'uuid',
     address: 'text',
-    audio: {
-      type: 'map',
-      typeDef: '<text,uuid>',
-    },
     avatar: 'uuid',
     country: 'text',
-    createat: 'timestamp',
     description: 'text',
     distance: 'float',
     dob_day: 'int',
     dob_month: 'int',
+    public: 'text',
     dob_year: 'int',
-    education: {
-      type: 'map',
-      typeDef: '<text,text>',
-    },
     email: 'text',
     fullname: 'text',
-    gender: 'text',
+    gender: 'varchar',
     height: 'text',
+    weight: 'text',
     hhr_goal: 'text',
-    jobs: {
-      type: 'map',
-      typeDef: '<text,text>',
-    },
     phone: 'text',
-    phones: {
-      type: 'map',
-      typeDef: '<text,text>',
-    },
     uniqueid: 'int',
     video: {
       type: 'map',
       typeDef: '<text,uuid>',
     },
-    weight: 'text',
+    jobs: {
+      type: 'map',
+      typeDef: '<text,text>',
+    },
+    education: {
+      type: 'map',
+      typeDef: '<text,text>',
+    },
+    audio: {
+      type: 'map',
+      typeDef: '<text,uuid>',
+    },
+    phones: {
+      type: 'map',
+      typeDef: '<text,text>',
+    },
+    createat: 'timestamp',
   },
   key: ['user_id'],
 };
