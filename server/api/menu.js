@@ -87,6 +87,7 @@ function fetchMenu(req, res) {
                   const item = JSON.parse(temp);
                   item.menuId = e.menuId;
                   item.menuItemId = t.menuitemid;
+                  item.orderby = t.orderby;
                   children[i] = item;
                 });
                 e.children = children;
