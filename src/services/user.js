@@ -4,6 +4,11 @@ import { getAuthority } from '@/utils/authority';
 export async function query() {
   return request('/api/users');
 }
+export async function queryUserBy(params) {
+  return request(`/api/fetch/by/${params}`, {
+    headers: { 'X-Access-Token': getAuthority()[0].token },
+  });
+}
 
 export async function queryCurrent() {
   return request('/api/user', {

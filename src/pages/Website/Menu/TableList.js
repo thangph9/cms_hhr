@@ -13,6 +13,7 @@ import {
   Divider,
   InputNumber,
 } from 'antd';
+import { Link } from 'react-router-dom';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 
@@ -112,6 +113,13 @@ class UpdateForm extends PureComponent {
         </Option>
       );
     });
+    if (list.length === 0)
+      return (
+        <div>
+          {' '}
+          Không tìm thấy menu item <Link to="/online/menu/item/add">Thêm mới</Link>{' '}
+        </div>
+      );
     return [
       <FormItem key="name" {...this.formLayout} label="Tên">
         {form.getFieldDecorator('name', {
@@ -551,6 +559,9 @@ class TableList extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
                 Thêm mới
               </Button>
+              <Link to="/online/menu/item/add" icon="plus" type="primary">
+                Thêm Menu Item
+              </Link>
               {selectedRows.length > 0 && (
                 <span>
                   <Button>批量操作</Button>
