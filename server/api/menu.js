@@ -198,8 +198,10 @@ function updateItem(req, res) {
       function initParams(callback) {
         try {
           PARAM_IS_VALID.menuItemId = models.uuidFromString(params.menuitemid);
+          PARAM_IS_VALID.menuId = models.uuidFromString(params.menuId);
           PARAM_IS_VALID.name = params.name;
           PARAM_IS_VALID.icon = params.icon;
+          PARAM_IS_VALID.orderby = params.orderby ? Number(params.orderby) : 1;
           PARAM_IS_VALID.authority = params.authority;
           PARAM_IS_VALID.path = params.path;
         } catch (e) {
@@ -220,6 +222,17 @@ function updateItem(req, res) {
           callback(err);
         });
       },
+      function updateMenuGroupOrderby(callback) {
+        const menuGroupObject = {
+          menuitemid: PARAM_IS_VALID.menuItemId,
+          menuid: PARAM_IS_VALID.menuId,
+          orderby: PARAM_IS_VALID.orderby,
+        };
+        const instance = new models.instance.menuGroup(menuGroupObject); // eslint-disable-line
+        instance.save(err => {
+          callback(err);
+        });
+      },
     ],
     err => {
       if (err) res.send({ status: 'error' });
@@ -230,7 +243,6 @@ function updateItem(req, res) {
 function updateMenu(req, res) {
   const PARAM_IS_VALID = {};
   const params = req.body;
-
   async.series(
     [
       function initParams(callback) {
