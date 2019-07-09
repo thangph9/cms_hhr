@@ -108,7 +108,7 @@ class UpdateForm extends PureComponent {
     const options = [];
     list.forEach((e, i) => {
       options[i] = (
-        <Option key={e.menuItemId} value={e.menuItemId}>
+        <Option key={e.id} value={e.id}>
           {e.name}
         </Option>
       );
@@ -127,8 +127,8 @@ class UpdateForm extends PureComponent {
         })(<Input disabled />)}
       </FormItem>,
       <FormItem key="menuItem" {...this.formLayout} label="Item">
-        {form.getFieldDecorator('menuItemId', {
-          initialValue: list[0].menuItemId,
+        {form.getFieldDecorator('id', {
+          initialValue: list[0].id,
         })(<Select style={{ width: '100%' }}>{options}</Select>)}
       </FormItem>,
       <FormItem key="orderby" {...this.formLayout} label="Vị trí ">
