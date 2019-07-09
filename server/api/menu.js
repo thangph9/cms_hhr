@@ -247,7 +247,7 @@ function updateMenu(req, res) {
     [
       function initParams(callback) {
         try {
-          PARAM_IS_VALID.menuItemId = models.uuidFromString(params.menuItemId);
+          PARAM_IS_VALID.menuItemId = models.uuidFromString(params.id);
           PARAM_IS_VALID.menuId = models.uuidFromString(params.menuId);
           PARAM_IS_VALID.orderby = params.orderby;
         } catch (e) {
@@ -257,7 +257,7 @@ function updateMenu(req, res) {
       },
       function addMenuGroup(callback) {
         const menuGroupObject = {
-          menuitemid: PARAM_IS_VALID.menuItemId,
+          menuItemId: PARAM_IS_VALID.menuItemId,
           menuid: PARAM_IS_VALID.menuId,
           orderby: PARAM_IS_VALID.orderby || 1,
         };
