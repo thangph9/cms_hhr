@@ -66,7 +66,6 @@ function fetchMenu(req, res) {
       let response = {};
 
       if (err) response = { status: 'error' };
-      // console.log(result);
       else {
         const treeMap = [];
         if (Array.isArray(result[1])) {
@@ -75,17 +74,18 @@ function fetchMenu(req, res) {
             const tmp = JSON.stringify(e);
             e = JSON.parse(tmp);
             e.parent = 1;
-            e.menuId = e.menuid;
+            e.menuId = e.id;
+
             if (Array.isArray(result[2])) {
-              const children = result[2].filter(k => k.menuid.toString() === e.menuId.toString());
+              const children = result[2].filter(k => k.menu_id.toString() === e.menuId.toString());
+
               if (children.length > 0) {
                 children.forEach((t, i) => {
                   const temp = JSON.stringify(
-                    result[3].filter(f => t.id.toString() === f.id.toString())[0]
+                    result[3].filter(f => t.item_id.toString() === f.id.toString())[0]
                   );
-
                   const item = JSON.parse(temp);
-                  item.menuId = e.menuId;
+                  item.menuId = e.id;
                   item.menuItemId = t.id;
                   item.orderby = t.orderby;
                   children[i] = item;
@@ -140,7 +140,7 @@ function fetchMenuItem(req, res) {
             let e = f;
             const tmp = JSON.stringify(e);
             e = JSON.parse(tmp);
-            e.menuItemId = e.menuitemid;
+            e.menuItemId = e.id;
             data[i] = e;
           });
         }
@@ -152,8 +152,6 @@ function fetchMenuItem(req, res) {
 }
 function addItem(req, res) {
   const PARAM_IS_VALID = {};
-
-  PARAM_IS_VALID.menuItemId = Uuid.random();
   const params = req.body;
   async.series(
     [
@@ -171,7 +169,6 @@ function addItem(req, res) {
       },
       function addMenuItem(callback) {
         const menuItemObject = {
-          menuitemid: PARAM_IS_VALID.menuItemId,
           name: PARAM_IS_VALID.name,
           path: PARAM_IS_VALID.path,
           icon: PARAM_IS_VALID.icon,
@@ -216,7 +213,7 @@ function updateItem(req, res) {
           authority: PARAM_IS_VALID.authority,
           path: PARAM_IS_VALID.path,
         };
-        const queryObject = { menuitemid: PARAM_IS_VALID.menuItemId };
+        const queryObject = { id: PARAM_IS_VALID.id };
         const options = { if_exists: true };
         models.instance.menuItem.update(queryObject, menuItemObject, options, err => {
           callback(err);
@@ -224,10 +221,11 @@ function updateItem(req, res) {
       },
       function updateMenuGroupOrderby(callback) {
         const menuGroupObject = {
-          menuitemid: PARAM_IS_VALID.menuItemId,
-          menuid: PARAM_IS_VALID.menuId,
+          item_id: PARAM_IS_VALID.menuItemId,
+          menu_id: PARAM_IS_VALID.menuId,
           orderby: PARAM_IS_VALID.orderby,
         };
+        console.log(menuGroupObject);
         const instance = new models.instance.menuGroup(menuGroupObject); // eslint-disable-line
         instance.save(err => {
           callback(err);
@@ -247,8 +245,8 @@ function updateMenu(req, res) {
     [
       function initParams(callback) {
         try {
-          PARAM_IS_VALID.menuItemId = models.uuidFromString(params.id);
-          PARAM_IS_VALID.menuId = models.uuidFromString(params.menuId);
+          PARAM_IS_VALID.menuItemId = models.uuidFromString(params.menuItemId);
+          PARAM_IS_VALID.menuId = models.uuidFromString(params.id);
           PARAM_IS_VALID.orderby = params.orderby;
         } catch (e) {
           console.log(e);
@@ -257,10 +255,11 @@ function updateMenu(req, res) {
       },
       function addMenuGroup(callback) {
         const menuGroupObject = {
-          menuItemId: PARAM_IS_VALID.menuItemId,
-          menuid: PARAM_IS_VALID.menuId,
+          item_id: PARAM_IS_VALID.menuItemId,
+          menu_id: PARAM_IS_VALID.menuId,
           orderby: PARAM_IS_VALID.orderby || 1,
         };
+        console.log(menuGroupObject);
         const instance = new models.instance.menuGroup(menuGroupObject); // eslint-disable-line
         instance.save(err => {
           callback(err);
@@ -268,6 +267,7 @@ function updateMenu(req, res) {
       },
     ],
     err => {
+      console.log(err);
       if (err) res.send({ status: 'error' });
       else res.json({ status: 'ok', data: params });
     }
@@ -289,8 +289,8 @@ function groupDelMenuItem(req, res) {
       },
       function groupDelMenuItemBase(callback) {
         const queryObject = {
-          menuid: PARAM_IS_VALID.menuId,
-          menuitemid: PARAM_IS_VALID.menuItemId,
+          menu_id: PARAM_IS_VALID.menuId,
+          item_id: PARAM_IS_VALID.menuItemId,
         };
         models.instance.menuGroup.delete(queryObject, err => {
           callback(err);
