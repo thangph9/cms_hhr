@@ -81,12 +81,12 @@ function fetchMenu(req, res) {
               if (children.length > 0) {
                 children.forEach((t, i) => {
                   const temp = JSON.stringify(
-                    result[3].filter(f => t.menuitemid.toString() === f.menuitemid.toString())[0]
+                    result[3].filter(f => t.id.toString() === f.id.toString())[0]
                   );
 
                   const item = JSON.parse(temp);
                   item.menuId = e.menuId;
-                  item.menuItemId = t.menuitemid;
+                  item.menuItemId = t.id;
                   item.orderby = t.orderby;
                   children[i] = item;
                 });
