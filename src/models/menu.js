@@ -1,9 +1,11 @@
 import memoizeOne from 'memoize-one';
+import { message } from 'antd';
 import isEqual from 'lodash/isEqual';
 import { formatMessage } from 'umi/locale';
-import Authorized from '@/utils/Authorized';
 import { menu } from '../defaultSettings';
-import { message } from 'antd';
+
+import Authorized from '@/utils/Authorized';
+
 import {
   apiMenuList,
   apiMenuAdd,
@@ -258,6 +260,7 @@ export default {
     updateItemReducer(state, action) {
       const { list, pagination } = state.table;
       const { payload } = action;
+
       list.forEach(e => {
         if (e.menuId === payload.menuId) {
           const { children } = e;
@@ -265,7 +268,7 @@ export default {
           if (Array.isArray(children)) {
             const child = [];
             children.forEach((k, j) => {
-              if (k.menuItemId === payload.menuItemId) {
+              if (k.id === payload.id) {
                 child[j] = payload;
               } else {
                 child[j] = k;
