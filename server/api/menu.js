@@ -194,13 +194,14 @@ function updateItem(req, res) {
     [
       function initParams(callback) {
         try {
-          PARAM_IS_VALID.menuItemId = models.uuidFromString(params.menuitemid);
+          PARAM_IS_VALID.menuItemId = models.uuidFromString(params.id);
           PARAM_IS_VALID.menuId = models.uuidFromString(params.menuId);
           PARAM_IS_VALID.name = params.name;
           PARAM_IS_VALID.icon = params.icon;
           PARAM_IS_VALID.orderby = params.orderby ? Number(params.orderby) : 1;
           PARAM_IS_VALID.authority = params.authority;
           PARAM_IS_VALID.path = params.path;
+          PARAM_IS_VALID.created = params.created;
         } catch (e) {
           console.log(e);
         }
@@ -213,7 +214,8 @@ function updateItem(req, res) {
           authority: PARAM_IS_VALID.authority,
           path: PARAM_IS_VALID.path,
         };
-        const queryObject = { id: PARAM_IS_VALID.id };
+
+        const queryObject = { id: PARAM_IS_VALID.menuItemId, created: PARAM_IS_VALID.created };
         const options = { if_exists: true };
         models.instance.menuItem.update(queryObject, menuItemObject, options, err => {
           callback(err);
@@ -225,7 +227,6 @@ function updateItem(req, res) {
           menu_id: PARAM_IS_VALID.menuId,
           orderby: PARAM_IS_VALID.orderby,
         };
-        console.log(menuGroupObject);
         const instance = new models.instance.menuGroup(menuGroupObject); // eslint-disable-line
         instance.save(err => {
           callback(err);
@@ -233,8 +234,9 @@ function updateItem(req, res) {
       },
     ],
     err => {
+      console.log('server', err);
       if (err) res.send({ status: 'error' });
-      else res.json({ status: 'ok', data: params });
+      else res.send({ status: 'ok', data: params });
     }
   );
 }
